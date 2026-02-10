@@ -1,8 +1,11 @@
-import { ArrowDownToLine, CreditCard, Building2, Smartphone, TrendingUp, ArrowUpRight, ArrowDownLeft, DollarSign, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowDownToLine, CreditCard, Building2, Smartphone, TrendingUp, ArrowUpRight, ArrowDownLeft, X, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
 import { ResponsiveContainer, XAxis, Tooltip, Bar, BarChart } from "recharts";
 import PageHeader from "@/components/PageHeader";
 import StatCardSmall from "@/components/StatCardSmall";
+import { toast } from "@/hooks/use-toast";
+
+const API_BASE = "https://api.livrauganda.workers.dev/api";
 
 const methods = [
   { id: "card", icon: CreditCard, label: "Debit Card", desc: "Instant deposit from your card", gradient: "stat-card-blue" },
@@ -29,32 +32,166 @@ const analyticsData = [
   { month: "Feb", deposit: 8900, withdraw: 4200, send: 3500, receive: 5800 },
 ];
 
-const depositModalMethods = [
-  { id: "mobile", icon: Smartphone, label: "Mobile Money" },
-  { id: "bank", icon: Building2, label: "Bank" },
-  { id: "card", icon: CreditCard, label: "Card" },
-];
-
-const withdrawModalMethods = [
-  { id: "mobile", icon: Smartphone, label: "Mobile Money" },
-  { id: "bank", icon: Building2, label: "Bank" },
-];
-
 const RadioDot = ({ selected }: { selected: boolean }) => (
   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selected ? "border-secondary" : "border-muted-foreground/30"}`}>
     {selected && <div className="w-2.5 h-2.5 rounded-full bg-secondary" />}
   </div>
 );
 
+type ModalStep = "form" | "processing" | "polling" | "success" | "error";
+
 const DepositPage = () => {
   const [activeMethod, setActiveMethod] = useState("card");
   const [amount, setAmount] = useState("");
+
+  // Deposit modal
   const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [depositMsisdn, setDepositMsisdn] = useState("");
   const [depositAmount, setDepositAmount] = useState("");
+  const [depositDescription, setDepositDescription] = useState("");
+  const [depositStep, setDepositStep] = useState<ModalStep>("form");
+  const [depositError, setDepositError] = useState("");
+  const [depositResult, setDepositResult] = useState<Record<string, unknown> | null>(null);
+  const depositPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Withdraw modal
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawMsisdn, setWithdrawMsisdn] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [depositModalMethod, setDepositModalMethod] = useState("mobile");
-  const [withdrawModalMethod, setWithdrawModalMethod] = useState("mobile");
+  const [withdrawDescription, setWithdrawDescription] = useState("");
+  const [withdrawStep, setWithdrawStep] = useState<ModalStep>("form");
+  const [withdrawError, setWithdrawError] = useState("");
+  const [withdrawResult, setWithdrawResult] = useState<Record<string, unknown> | null>(null);
+  const withdrawPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = useCallback((ref: React.MutableRefObject<ReturnType<typeof setInterval> | null>) => {
+    if (ref.current) { clearInterval(ref.current); ref.current = null; }
+  }, []);
+
+  const pollStatus = useCallback((internalRef: string, pollRef: React.MutableRefObject<ReturnType<typeof setInterval> | null>, setStep: (s: ModalStep) => void, setResult: (r: Record<string, unknown>) => void, setError: (e: string) => void) => {
+    let attempts = 0;
+    const maxAttempts = 60; // 5 min max
+    pollRef.current = setInterval(async () => {
+      attempts++;
+      if (attempts > maxAttempts) {
+        stopPolling(pollRef);
+        setError("Payment status check timed out. Please check your transaction history.");
+        setStep("error");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/request-status?internal_reference=${internalRef}`);
+        const data = await res.json();
+        console.log("Poll status:", data);
+        if (data.success && data.request_status === "success") {
+          stopPolling(pollRef);
+          setResult(data);
+          setStep("success");
+          toast({ title: "Success", description: data.message || "Transaction completed successfully" });
+        } else if (data.request_status === "failed") {
+          stopPolling(pollRef);
+          setError(data.message || "Transaction failed");
+          setStep("error");
+        }
+      } catch {
+        // silently continue polling on network error
+      }
+    }, 5000);
+  }, [stopPolling]);
+
+  const handleDeposit = async () => {
+    if (!depositMsisdn || !depositAmount) return;
+    setDepositStep("processing");
+    setDepositError("");
+    try {
+      const res = await fetch(`${API_BASE}/deposit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          msisdn: depositMsisdn,
+          amount: parseFloat(depositAmount),
+          description: depositDescription || "Deposit",
+        }),
+      });
+      const data = await res.json();
+      console.log("Deposit response:", data);
+      if (data.success && data.internal_reference) {
+        setDepositStep("polling");
+        pollStatus(data.internal_reference, depositPollRef, setDepositStep, setDepositResult, setDepositError);
+      } else {
+        setDepositError(data.message || "Deposit request failed");
+        setDepositStep("error");
+      }
+    } catch {
+      setDepositError("Network error. Please try again.");
+      setDepositStep("error");
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!withdrawMsisdn || !withdrawAmount) return;
+    setWithdrawStep("processing");
+    setWithdrawError("");
+    try {
+      const res = await fetch(`${API_BASE}/withdraw`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          msisdn: withdrawMsisdn,
+          amount: parseFloat(withdrawAmount),
+          description: withdrawDescription || "Withdrawal",
+        }),
+      });
+      const data = await res.json();
+      console.log("Withdraw response:", data);
+      if (data.success && data.internal_reference) {
+        setWithdrawStep("polling");
+        pollStatus(data.internal_reference, withdrawPollRef, setWithdrawStep, setWithdrawResult, setWithdrawError);
+      } else {
+        setWithdrawError(data.message || "Withdraw request failed");
+        setWithdrawStep("error");
+      }
+    } catch {
+      setWithdrawError("Network error. Please try again.");
+      setWithdrawStep("error");
+    }
+  };
+
+  const closeDepositModal = () => {
+    stopPolling(depositPollRef);
+    setShowDepositModal(false);
+    setDepositStep("form");
+    setDepositMsisdn("");
+    setDepositAmount("");
+    setDepositDescription("");
+    setDepositError("");
+    setDepositResult(null);
+  };
+
+  const closeWithdrawModal = () => {
+    stopPolling(withdrawPollRef);
+    setShowWithdrawModal(false);
+    setWithdrawStep("form");
+    setWithdrawMsisdn("");
+    setWithdrawAmount("");
+    setWithdrawDescription("");
+    setWithdrawError("");
+    setWithdrawResult(null);
+  };
+
+  const renderResult = (result: Record<string, unknown> | null) => {
+    if (!result) return null;
+    return (
+      <div className="glass rounded-xl p-3 space-y-1 text-left">
+        {result.msisdn && <p className="text-xs text-muted-foreground">msisdn: {String(result.msisdn)}</p>}
+        {result.amount && <p className="text-xs text-muted-foreground">amount: {String(result.amount)} {String(result.currency || "UGX")}</p>}
+        {result.provider && <p className="text-xs text-muted-foreground">provider: {String(result.provider)}</p>}
+        {result.charge !== undefined && <p className="text-xs text-muted-foreground">charge: {String(result.charge)}</p>}
+        {result.internal_reference && <p className="text-xs text-muted-foreground">internal_reference: {String(result.internal_reference)}</p>}
+        {result.provider_transaction_id && <p className="text-xs text-muted-foreground">provider_transaction_id: {String(result.provider_transaction_id)}</p>}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -76,6 +213,7 @@ const DepositPage = () => {
         </button>
       </div>
 
+      {/* Analytics chart */}
       <div className="glass rounded-2xl p-5 mb-5">
         <div className="flex items-center justify-between mb-1">
           <div>
@@ -108,9 +246,9 @@ const DepositPage = () => {
         </div>
       </div>
 
+      {/* Methods + form section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         <div className="lg:col-span-2">
-          {/* Deposit Methods with round markers */}
           <div className="grid grid-cols-3 gap-3 mb-5">
             {methods.map(m => {
               const Icon = m.icon;
@@ -180,84 +318,138 @@ const DepositPage = () => {
         </div>
       </div>
 
-      {/* Floating Deposit Modal */}
+      {/* Deposit Modal - Mobile Money */}
       {showDepositModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowDepositModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={closeDepositModal}>
           <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Quick Deposit</h3>
-              <button onClick={() => setShowDepositModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+              <h3 className="text-lg font-semibold text-foreground">
+                {depositStep === "success" ? "Deposit Complete" : depositStep === "polling" ? "Processing Deposit..." : "Deposit / Request Payment"}
+              </h3>
+              <button onClick={closeDepositModal} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
             </div>
-            <div className="space-y-4">
-              <input type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} placeholder="$0.00"
-                className="glass-input w-full px-4 py-3 rounded-xl text-2xl font-bold text-center text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              <div className="flex gap-2">
-                {["$50", "$100", "$500", "$1,000"].map(a => (
-                  <button key={a} onClick={() => setDepositAmount(a.replace(/[$,]/g, ""))}
-                    className="flex-1 glass-input py-2 rounded-xl text-xs font-medium text-foreground hover:bg-secondary hover:text-secondary-foreground transition-colors">{a}</button>
-                ))}
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Method</label>
-                <div className="space-y-2">
-                  {depositModalMethods.map(m => {
-                    const Icon = m.icon;
-                    return (
-                      <button key={m.id} onClick={() => setDepositModalMethod(m.id)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${depositModalMethod === m.id ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                        <RadioDot selected={depositModalMethod === m.id} />
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground ${m.id === "mobile" ? "stat-card-orange" : m.id === "bank" ? "stat-card-blue" : "stat-card-purple"}`}>
-                          <Icon size={16} />
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{m.label}</span>
-                      </button>
-                    );
-                  })}
+
+            {depositStep === "success" ? (
+              <div className="space-y-4 text-center">
+                <div className="w-16 h-16 rounded-full stat-card-green flex items-center justify-center mx-auto">
+                  <CheckCircle size={28} className="text-primary-foreground" />
                 </div>
+                <p className="text-lg font-semibold text-foreground">Deposit Successful</p>
+                <p className="text-sm text-muted-foreground">Your payment has been completed.</p>
+                {renderResult(depositResult)}
+                <button onClick={closeDepositModal}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90">Done</button>
               </div>
-              <button onClick={() => { setShowDepositModal(false); setDepositAmount(""); }}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                <ArrowDownToLine size={16} /> Deposit Now
-              </button>
-            </div>
+            ) : depositStep === "polling" ? (
+              <div className="space-y-4 text-center py-6">
+                <Loader2 size={32} className="animate-spin text-secondary mx-auto" />
+                <p className="text-sm font-medium text-foreground">Waiting for payment confirmation...</p>
+                <p className="text-xs text-muted-foreground">Please complete the payment on your phone. This will update automatically.</p>
+              </div>
+            ) : depositStep === "processing" ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 size={28} className="animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {depositError && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle size={16} /> {depositError}
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">msisdn <span className="text-[10px]">(Mobile Money phone number)</span></label>
+                  <input value={depositMsisdn} onChange={e => setDepositMsisdn(e.target.value)} placeholder="+256701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">amount <span className="text-[10px]">(UGX)</span></label>
+                  <input type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} placeholder="5000"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">description <span className="text-[10px]">(Payment description)</span></label>
+                  <input value={depositDescription} onChange={e => setDepositDescription(e.target.value)} placeholder="e.g. Wallet top-up"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <button onClick={handleDeposit} disabled={!depositMsisdn || !depositAmount}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
+                  <ArrowDownToLine size={16} /> Request Payment
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Floating Withdraw Modal */}
+      {/* Withdraw Modal - Mobile Money */}
       {showWithdrawModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowWithdrawModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={closeWithdrawModal}>
           <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Withdraw Funds</h3>
-              <button onClick={() => setShowWithdrawModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+              <h3 className="text-lg font-semibold text-foreground">
+                {withdrawStep === "success" ? "Withdrawal Complete" : withdrawStep === "polling" ? "Processing Withdrawal..." : "Withdraw / Send Money"}
+              </h3>
+              <button onClick={closeWithdrawModal} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
             </div>
-            <div className="space-y-4">
-              <input type="number" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} placeholder="$0.00"
-                className="glass-input w-full px-4 py-3 rounded-xl text-2xl font-bold text-center text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Withdraw To</label>
-                <div className="space-y-2">
-                  {withdrawModalMethods.map(m => {
-                    const Icon = m.icon;
-                    return (
-                      <button key={m.id} onClick={() => setWithdrawModalMethod(m.id)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${withdrawModalMethod === m.id ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                        <RadioDot selected={withdrawModalMethod === m.id} />
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground ${m.id === "mobile" ? "stat-card-orange" : "stat-card-blue"}`}>
-                          <Icon size={16} />
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{m.label}</span>
-                      </button>
-                    );
-                  })}
+
+            {withdrawStep === "success" ? (
+              <div className="space-y-4 text-center">
+                <div className="w-16 h-16 rounded-full stat-card-green flex items-center justify-center mx-auto">
+                  <CheckCircle size={28} className="text-primary-foreground" />
                 </div>
+                <p className="text-lg font-semibold text-foreground">Withdrawal Successful</p>
+                <p className="text-sm text-muted-foreground">Money has been sent to your mobile money.</p>
+                {renderResult(withdrawResult)}
+                <button onClick={closeWithdrawModal}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90">Done</button>
               </div>
-              <button onClick={() => { setShowWithdrawModal(false); setWithdrawAmount(""); }}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                <ArrowUpRight size={16} /> Withdraw Now
-              </button>
-            </div>
+            ) : withdrawStep === "polling" ? (
+              <div className="space-y-4 text-center py-6">
+                <Loader2 size={32} className="animate-spin text-secondary mx-auto" />
+                <p className="text-sm font-medium text-foreground">Processing withdrawal...</p>
+                <p className="text-xs text-muted-foreground">Please wait while the transfer is being processed.</p>
+              </div>
+            ) : withdrawStep === "processing" ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 size={28} className="animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {withdrawError && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle size={16} /> {withdrawError}
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">msisdn <span className="text-[10px]">(Recipient mobile money number)</span></label>
+                  <input value={withdrawMsisdn} onChange={e => setWithdrawMsisdn(e.target.value)} placeholder="+256701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">amount <span className="text-[10px]">(UGX)</span></label>
+                  <input type="number" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} placeholder="2000"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">description <span className="text-[10px]">(Withdrawal description)</span></label>
+                  <input value={withdrawDescription} onChange={e => setWithdrawDescription(e.target.value)} placeholder="e.g. User withdrawal"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <button onClick={handleWithdraw} disabled={!withdrawMsisdn || !withdrawAmount}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
+                  <ArrowUpRight size={16} /> Send Withdrawal
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
