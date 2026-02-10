@@ -487,9 +487,11 @@ const TransferPage = () => {
                   <p className="text-3xl font-bold text-foreground mt-1">UGX {parseFloat(purchaseAmount).toLocaleString()}</p>
                   {customerName && <p className="text-xs text-muted-foreground mt-1">Customer: {customerName}</p>}
                 </div>
-                <div className="glass rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground">Phone: {phoneNumber}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Ref: {validationRef}</p>
+                <div className="glass rounded-xl p-3 space-y-1">
+                  <p className="text-xs text-muted-foreground">Bank Account (msisdn): {phoneNumber}</p>
+                  <p className="text-xs text-muted-foreground">Contact Phone: {contactPhone || phoneNumber}</p>
+                  <p className="text-xs text-muted-foreground">Product: {selectedProduct.code}</p>
+                  <p className="text-xs text-muted-foreground">Validation Ref: {validationRef}</p>
                 </div>
                 <button onClick={handlePurchase} disabled={purchasing}
                   className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
@@ -512,24 +514,22 @@ const TransferPage = () => {
                 )}
 
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1.5 block">Recipient Number</label>
-                  <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. 0701234567"
+                  <label className="text-xs text-muted-foreground mb-1.5 block">MSISDN <span className="text-[10px]">(Recipient Bank Account Number)</span></label>
+                  <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="Enter bank account number"
                     className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
 
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1.5 block">Contact Phone (SMS notification)</label>
-                  <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. 0701234567"
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Amount <span className="text-[10px]">(UGX)</span></label>
+                  <input type="number" value={purchaseAmount} onChange={e => setPurchaseAmount(e.target.value)} placeholder="Enter transfer amount"
                     className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
 
-                {!selectedPrice && (
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1.5 block">Amount (UGX)</label>
-                    <input type="number" value={purchaseAmount} onChange={e => setPurchaseAmount(e.target.value)} placeholder="Enter amount"
-                      className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-                  </div>
-                )}
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Contact Phone <span className="text-[10px]">(For SMS notification after transfer)</span></label>
+                  <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. 0701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
 
                 {choiceList.length > 0 && (
                   <div>
