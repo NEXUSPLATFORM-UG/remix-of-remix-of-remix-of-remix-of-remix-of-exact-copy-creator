@@ -332,9 +332,11 @@ const UtilitiesPage = () => {
                   <p className="text-3xl font-bold text-foreground mt-1">UGX {parseFloat(amount).toLocaleString()}</p>
                   {customerName && <p className="text-xs text-muted-foreground mt-1">Customer: {customerName}</p>}
                 </div>
-                <div className="glass rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground">Phone: {phoneNumber}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Ref: {validationRef}</p>
+                <div className="glass rounded-xl p-3 space-y-1">
+                  <p className="text-xs text-muted-foreground">msisdn: {phoneNumber}</p>
+                  <p className="text-xs text-muted-foreground">contact_phone: {contactPhone || phoneNumber}</p>
+                  <p className="text-xs text-muted-foreground">product_code: {selectedPrice?.code || selectedProduct?.code}</p>
+                  <p className="text-xs text-muted-foreground">validation_reference: {validationRef}</p>
                 </div>
                 <button onClick={handlePurchase} disabled={purchasing}
                   className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
@@ -357,28 +359,33 @@ const UtilitiesPage = () => {
                 )}
 
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1.5 block">Recipient Number (MSISDN / Meter No.)</label>
-                  <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. 0701234567"
+                  <label className="text-xs text-muted-foreground mb-1.5 block">msisdn <span className="text-[10px]">(Recipient phone number / meter number)</span></label>
+                  <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. +256701234567"
                     className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
 
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1.5 block">Contact Phone (for SMS notification)</label>
-                  <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. 0701234567"
+                  <label className="text-xs text-muted-foreground mb-1.5 block">amount <span className="text-[10px]">(UGX)</span></label>
+                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30"
+                    disabled={!!selectedPrice} />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">product_code <span className="text-[10px]">(Auto-selected)</span></label>
+                  <input value={selectedPrice?.code || selectedProduct?.code || ""} readOnly
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground bg-muted/20 focus:outline-none" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">contact_phone <span className="text-[10px]">(For SMS notification)</span></label>
+                  <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. +256701234567"
                     className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
 
-                {!selectedPrice && (
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1.5 block">Amount (UGX)</label>
-                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000"
-                      className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-                  </div>
-                )}
-
                 {choiceList.length > 0 && (
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1.5 block">Location</label>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">location_id <span className="text-[10px]">(Select location)</span></label>
                     <select value={selectedChoice} onChange={e => setSelectedChoice(e.target.value)}
                       className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
                       <option value="">Select location...</option>
