@@ -1,98 +1,178 @@
-import { Zap, Wifi, Phone, Droplets, Tv, CreditCard, X, Plus, TrendingUp, Clock, CheckCircle, ArrowDownLeft, DollarSign, Building2, Smartphone, Calendar, BarChart3 } from "lucide-react";
-import { useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
+import { Zap, Wifi, Phone, Droplets, Tv, CreditCard, X, Loader2, ShoppingCart, CheckCircle, AlertCircle, ChevronRight, Search } from "lucide-react";
+import { useState, useEffect } from "react";
 import PageHeader from "@/components/PageHeader";
-import StatCardSmall from "@/components/StatCardSmall";
+import { toast } from "@/hooks/use-toast";
 
-const utilities = [
-  { id: "electricity", icon: Zap, label: "Electricity", gradient: "stat-card-orange" },
-  { id: "internet", icon: Wifi, label: "Internet", gradient: "stat-card-blue" },
-  { id: "phone", icon: Phone, label: "Phone", gradient: "stat-card-purple" },
-  { id: "water", icon: Droplets, label: "Water", gradient: "stat-card-cyan" },
-  { id: "cable", icon: Tv, label: "Cable TV", gradient: "stat-card-pink" },
-  { id: "other", icon: CreditCard, label: "Other Bills", gradient: "stat-card-green" },
-];
+const API_BASE = "https://api.livrauganda.workers.dev/api/products";
 
-const defaultBills = [
-  { id: 1, name: "Electricity — DESCO", category: "electricity", amount: 120.00, date: "Feb 5", status: "Paid", recurring: true },
-  { id: 2, name: "Internet — Comcast", category: "internet", amount: 79.99, date: "Feb 3", status: "Paid", recurring: true },
-  { id: 3, name: "Phone — AT&T", category: "phone", amount: 55.00, date: "Feb 1", status: "Due", recurring: true },
-  { id: 4, name: "Water — City Utility", category: "water", amount: 45.00, date: "Jan 28", status: "Paid", recurring: true },
-  { id: 5, name: "Netflix", category: "cable", amount: 15.99, date: "Jan 25", status: "Paid", recurring: true },
-  { id: 6, name: "Spotify", category: "other", amount: 9.99, date: "Jan 22", status: "Paid", recurring: true },
-];
+interface Product {
+  name: string;
+  code: string;
+  category: string;
+  has_price_list: boolean;
+  has_choice_list: boolean;
+  billable: boolean;
+}
 
-const providers: Record<string, string[]> = {
-  electricity: ["DESCO", "DPDC", "National Grid", "Duke Energy", "PG&E"],
-  internet: ["Comcast", "AT&T Fiber", "Verizon Fios", "Spectrum", "Google Fiber"],
-  phone: ["AT&T", "T-Mobile", "Verizon", "Sprint", "Mint Mobile"],
-  water: ["City Utility", "American Water", "Aqua America"],
-  cable: ["Netflix", "Disney+", "HBO Max", "Hulu", "YouTube TV"],
-  other: ["Gym Membership", "Cloud Storage", "Insurance Premium", "Rent"],
+interface PriceItem {
+  code: string;
+  name: string;
+  price: number;
+}
+
+interface ChoiceItem {
+  id: string;
+  name: string;
+}
+
+const categoryConfig: Record<string, { icon: typeof Zap; gradient: string; label: string }> = {
+  AIRTIME: { icon: Phone, gradient: "stat-card-orange", label: "Airtime" },
+  INTERNET: { icon: Wifi, gradient: "stat-card-blue", label: "Internet" },
+  TV: { icon: Tv, gradient: "stat-card-pink", label: "TV" },
+  UTILITIES: { icon: Zap, gradient: "stat-card-cyan", label: "Utilities" },
+  OTHERS: { icon: CreditCard, gradient: "stat-card-purple", label: "Others" },
 };
 
-const paymentMethods = [
-  { id: "mobile", icon: Smartphone, label: "Mobile Money" },
-  { id: "bank", icon: Building2, label: "Bank" },
-  { id: "card", icon: CreditCard, label: "Card" },
-];
-
-const analyticsData = [
-  { month: "Jul", electricity: 115, internet: 80, phone: 55, water: 42, cable: 26, other: 10 },
-  { month: "Aug", electricity: 130, internet: 80, phone: 55, water: 45, cable: 26, other: 10 },
-  { month: "Sep", electricity: 118, internet: 80, phone: 55, water: 40, cable: 26, other: 20 },
-  { month: "Oct", electricity: 108, internet: 80, phone: 55, water: 38, cable: 26, other: 10 },
-  { month: "Nov", electricity: 125, internet: 80, phone: 55, water: 44, cable: 26, other: 10 },
-  { month: "Dec", electricity: 140, internet: 80, phone: 60, water: 48, cable: 26, other: 15 },
-  { month: "Jan", electricity: 135, internet: 80, phone: 55, water: 45, cable: 26, other: 10 },
-  { month: "Feb", electricity: 120, internet: 80, phone: 55, water: 45, cable: 16, other: 10 },
-];
-
 const UtilitiesPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState("electricity");
-  const [bills, setBills] = useState(defaultBills);
-  const [showPayModal, setShowPayModal] = useState(false);
-  const [showAddBill, setShowAddBill] = useState(false);
-  const [payingBill, setPayingBill] = useState<typeof defaultBills[0] | null>(null);
-  const [payMethod, setPayMethod] = useState("mobile");
-  const [newBillName, setNewBillName] = useState("");
-  const [newBillAmount, setNewBillAmount] = useState("");
-  const [newBillCategory, setNewBillCategory] = useState("electricity");
-  const [newBillProvider, setNewBillProvider] = useState("");
-  const [newBillRecurring, setNewBillRecurring] = useState(true);
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("AIRTIME");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [priceList, setPriceList] = useState<PriceItem[]>([]);
+  const [choiceList, setChoiceList] = useState<ChoiceItem[]>([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
-  const totalPaid = bills.filter(b => b.status === "Paid").reduce((s, b) => s + b.amount, 0);
-  const totalDue = bills.filter(b => b.status === "Due").reduce((s, b) => s + b.amount, 0);
-  const filteredBills = bills.filter(b => b.category === selectedCategory);
+  // Purchase flow
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [selectedPrice, setSelectedPrice] = useState<PriceItem | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [amount, setAmount] = useState("");
+  const [selectedChoice, setSelectedChoice] = useState("");
+  const [validating, setValidating] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const [validationRef, setValidationRef] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [purchaseStep, setPurchaseStep] = useState<"form" | "validated" | "success" | "error">("form");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handlePayBill = (bill: typeof defaultBills[0]) => {
-    setPayingBill(bill);
-    setShowPayModal(true);
-  };
+  useEffect(() => {
+    fetch(API_BASE)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setProducts(data.products);
+      })
+      .catch(() => toast({ title: "Error", description: "Failed to load products", variant: "destructive" }))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const confirmPay = () => {
-    if (payingBill) {
-      setBills(bills.map(b => b.id === payingBill.id ? { ...b, status: "Paid" } : b));
+  const handleSelectProduct = async (product: Product) => {
+    setSelectedProduct(product);
+    setPriceList([]);
+    setChoiceList([]);
+    setLoadingDetails(true);
+
+    const promises: Promise<void>[] = [];
+
+    if (product.has_price_list) {
+      promises.push(
+        fetch(`${API_BASE}/price-list?code=${product.code}`)
+          .then(res => res.json())
+          .then(data => { if (data.success) setPriceList(data.price_list); })
+      );
     }
-    setShowPayModal(false);
-    setPayingBill(null);
+    if (product.has_choice_list) {
+      promises.push(
+        fetch(`${API_BASE}/choice-list?code=${product.code}`)
+          .then(res => res.json())
+          .then(data => { if (data.success) setChoiceList(data.choice_list); })
+      );
+    }
+
+    await Promise.all(promises).catch(() => {});
+    setLoadingDetails(false);
   };
 
-  const handleAddBill = () => {
-    if (!newBillName || !newBillAmount) return;
-    setBills([...bills, {
-      id: Date.now(),
-      name: `${newBillName}${newBillProvider ? ` — ${newBillProvider}` : ""}`,
-      category: newBillCategory,
-      amount: parseFloat(newBillAmount),
-      date: "Feb 10",
-      status: "Due",
-      recurring: newBillRecurring,
-    }]);
-    setNewBillName(""); setNewBillAmount(""); setNewBillProvider(""); setShowAddBill(false);
+  const openPurchase = (priceItem?: PriceItem) => {
+    setSelectedPrice(priceItem || null);
+    if (priceItem) setAmount(String(priceItem.price));
+    else setAmount("");
+    setPhoneNumber("");
+    setContactPhone("");
+    setSelectedChoice("");
+    setValidationRef("");
+    setCustomerName("");
+    setPurchaseStep("form");
+    setErrorMsg("");
+    setShowPurchaseModal(true);
   };
+
+  const handleValidate = async () => {
+    if (!phoneNumber || !amount || !selectedProduct) return;
+    setValidating(true);
+    setErrorMsg("");
+    try {
+      const body: Record<string, string | number> = {
+        msisdn: phoneNumber,
+        amount: parseFloat(amount),
+        product_code: selectedPrice?.code || selectedProduct.code,
+        contact_phone: contactPhone || phoneNumber,
+      };
+      if (selectedChoice) body.location_id = selectedChoice;
+
+      const res = await fetch(`${API_BASE}/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setValidationRef(data.validation_reference);
+        setCustomerName(data.customer_name || "");
+        setPurchaseStep("validated");
+      } else {
+        setErrorMsg(data.message || "Validation failed");
+        setPurchaseStep("error");
+      }
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+      setPurchaseStep("error");
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const handlePurchase = async () => {
+    if (!validationRef) return;
+    setPurchasing(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch(`${API_BASE}/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ validation_reference: validationRef }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPurchaseStep("success");
+        toast({ title: "Success", description: data.message || "Purchase in progress" });
+      } else {
+        setErrorMsg(data.message || "Purchase failed");
+        setPurchaseStep("error");
+      }
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+      setPurchaseStep("error");
+    } finally {
+      setPurchasing(false);
+    }
+  };
+
+  const categories = Object.keys(categoryConfig);
+  const filteredProducts = products
+    .filter(p => p.category === selectedCategory)
+    .filter(p => !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const RadioDot = ({ selected }: { selected: boolean }) => (
     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selected ? "border-secondary" : "border-muted-foreground/30"}`}>
@@ -102,301 +182,217 @@ const UtilitiesPage = () => {
 
   return (
     <>
-      <PageHeader title="Utilities" subtitle="Pay your bills and manage subscriptions" />
+      <PageHeader title="Utilities" subtitle="Buy airtime, data, TV, utilities & more" />
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCardSmall icon={<DollarSign size={18} />} label="Total Paid" value={`$${totalPaid.toFixed(2)}`} gradient="stat-card-green" />
-        <StatCardSmall icon={<Clock size={18} />} label="Due" value={`$${totalDue.toFixed(2)}`} gradient="stat-card-orange" />
-        <StatCardSmall icon={<CheckCircle size={18} />} label="Bills Paid" value={`${bills.filter(b => b.status === "Paid").length}`} gradient="stat-card-blue" />
-        <StatCardSmall icon={<Calendar size={18} />} label="Recurring" value={`${bills.filter(b => b.recurring).length}`} gradient="stat-card-purple" />
-      </div>
-
-      {/* Analytics */}
-      <div className="glass rounded-2xl p-5 mb-5">
-        <h3 className="text-sm font-semibold text-foreground mb-1">Bill Analytics</h3>
-        <p className="text-xs text-muted-foreground mb-3">Monthly breakdown by category</p>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={analyticsData} barGap={1}>
-            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "hsl(220 10% 45%)" }} />
-            <Tooltip contentStyle={{ background: "hsl(0 0% 100% / 0.85)", backdropFilter: "blur(20px)", border: "1px solid hsl(0 0% 100% / 0.35)", borderRadius: "12px", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }} />
-            <Bar dataKey="electricity" fill="hsl(25 95% 55%)" radius={[3, 3, 0, 0]} name="Electricity" stackId="a" />
-            <Bar dataKey="internet" fill="hsl(210 100% 50%)" radius={[0, 0, 0, 0]} name="Internet" stackId="a" />
-            <Bar dataKey="phone" fill="hsl(260 70% 55%)" radius={[0, 0, 0, 0]} name="Phone" stackId="a" />
-            <Bar dataKey="water" fill="hsl(185 75% 50%)" radius={[0, 0, 0, 0]} name="Water" stackId="a" />
-            <Bar dataKey="cable" fill="hsl(330 85% 55%)" radius={[0, 0, 0, 0]} name="Cable" stackId="a" />
-            <Bar dataKey="other" fill="hsl(155 65% 45%)" radius={[3, 3, 0, 0]} name="Other" stackId="a" />
-          </BarChart>
-        </ResponsiveContainer>
-        <div className="flex gap-3 mt-3 justify-center flex-wrap">
-          {[
-            { label: "Electricity", color: "hsl(25 95% 55%)" },
-            { label: "Internet", color: "hsl(210 100% 50%)" },
-            { label: "Phone", color: "hsl(260 70% 55%)" },
-            { label: "Water", color: "hsl(185 75% 50%)" },
-            { label: "Cable", color: "hsl(330 85% 55%)" },
-            { label: "Other", color: "hsl(155 65% 45%)" },
-          ].map(l => (
-            <div key={l.label} className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm" style={{ background: l.color }} />
-              <span className="text-xs text-muted-foreground">{l.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Category selector with round markers */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-        {utilities.map((u) => {
-          const Icon = u.icon;
-          const isActive = selectedCategory === u.id;
+      {/* Category selector */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+        {categories.map(cat => {
+          const config = categoryConfig[cat];
+          const Icon = config.icon;
+          const isActive = selectedCategory === cat;
+          const count = products.filter(p => p.category === cat).length;
           return (
-            <button key={u.id} onClick={() => setSelectedCategory(u.id)}
-              className={`glass rounded-2xl p-4 flex items-center gap-3 transition-all ${isActive ? "ring-2 ring-secondary" : ""}`}>
-              <RadioDot selected={isActive} />
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground ${u.gradient}`}>
+            <button key={cat} onClick={() => { setSelectedCategory(cat); setSelectedProduct(null); setSearchQuery(""); }}
+              className={`glass rounded-2xl p-4 flex flex-col items-center gap-2 transition-all ${isActive ? "ring-2 ring-secondary" : ""}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground ${config.gradient}`}>
                 <Icon size={18} />
               </div>
-              <span className="text-sm font-medium text-foreground">{u.label}</span>
+              <span className="text-sm font-medium text-foreground">{config.label}</span>
+              <span className="text-[10px] text-muted-foreground">{count} products</span>
             </button>
           );
         })}
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex gap-3 mb-5">
-        <button onClick={() => setShowAddBill(true)} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity">
-          <Plus size={16} /> Add Bill
-        </button>
-        <button onClick={() => setShowScheduleModal(true)} className="flex items-center gap-2 glass px-4 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-[hsl(0_0%_100%/0.6)] transition-colors">
-          <Calendar size={16} /> Schedule Payment
-        </button>
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="animate-spin text-muted-foreground" size={28} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Products list */}
+          <div className="glass rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">{categoryConfig[selectedCategory]?.label} Products</h3>
+              <span className="text-xs text-muted-foreground">{filteredProducts.length} available</span>
+            </div>
+            <div className="relative mb-3">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search products..."
+                className="glass-input w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+            </div>
+            <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-thin">
+              {filteredProducts.map(p => {
+                const isSelected = selectedProduct?.code === p.code;
+                return (
+                  <button key={p.code} onClick={() => handleSelectProduct(p)}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all text-left ${isSelected ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass hover:bg-[hsl(0_0%_100%/0.5)]"}`}>
+                    <div className="flex items-center gap-3">
+                      <RadioDot selected={isSelected} />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{p.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {p.has_price_list && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-secondary/10 text-secondary font-medium">Packages</span>}
+                          {p.has_choice_list && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-chart-orange/10 text-chart-orange font-medium">Options</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={14} className="text-muted-foreground" />
+                  </button>
+                );
+              })}
+              {filteredProducts.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">No products found</p>
+              )}
+            </div>
+          </div>
 
-      {/* Bills List for selected category */}
-      <div className="glass rounded-2xl p-5 mb-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">
-          {utilities.find(u => u.id === selectedCategory)?.label} Bills
-        </h3>
-        {filteredBills.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No bills in this category yet</p>
-        ) : (
-          <div className="space-y-3">
-            {filteredBills.map(b => (
-              <div key={b.id} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-primary-foreground ${b.status === "Paid" ? "stat-card-green" : "stat-card-orange"}`}>
-                    {b.status === "Paid" ? <CheckCircle size={14} /> : <Clock size={14} />}
+          {/* Product details / price list / purchase */}
+          <div className="glass rounded-2xl p-5">
+            {!selectedProduct ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <ShoppingCart size={32} className="text-muted-foreground mb-3" />
+                <p className="text-sm text-muted-foreground">Select a product to see details</p>
+              </div>
+            ) : loadingDetails ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="animate-spin text-muted-foreground" size={24} />
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground ${categoryConfig[selectedProduct.category]?.gradient || "stat-card-blue"}`}>
+                    {(() => { const Icon = categoryConfig[selectedProduct.category]?.icon || CreditCard; return <Icon size={18} />; })()}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{b.name}</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-muted-foreground">{b.date}</p>
-                      {b.recurring && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-secondary/10 text-secondary font-medium">Recurring</span>}
+                    <h3 className="text-sm font-semibold text-foreground">{selectedProduct.name}</h3>
+                    <p className="text-xs text-muted-foreground">{selectedProduct.category} • {selectedProduct.code}</p>
+                  </div>
+                </div>
+
+                {/* If product has price list, show packages */}
+                {priceList.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Available Packages</h4>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto scrollbar-thin">
+                      {priceList.map(item => (
+                        <button key={item.code} onClick={() => openPurchase(item)}
+                          className="w-full flex items-center justify-between p-3 rounded-xl glass hover:bg-[hsl(0_0%_100%/0.5)] transition-all text-left">
+                          <p className="text-sm font-medium text-foreground flex-1 mr-3">{item.name}</p>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-sm font-bold text-foreground">UGX {item.price.toLocaleString()}</span>
+                            <ShoppingCart size={14} className="text-secondary" />
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
+                )}
+
+                {/* If no price list, show direct purchase */}
+                {priceList.length === 0 && (
+                  <button onClick={() => openPurchase()}
+                    className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                    <ShoppingCart size={16} /> Buy {selectedProduct.name}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Purchase Modal */}
+      {showPurchaseModal && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowPurchaseModal(false)}>
+          <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-foreground">
+                {purchaseStep === "success" ? "Purchase Complete" : purchaseStep === "validated" ? "Confirm Purchase" : "Purchase"}
+              </h3>
+              <button onClick={() => setShowPurchaseModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+            </div>
+
+            {purchaseStep === "success" ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 rounded-full stat-card-green flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle size={28} className="text-primary-foreground" />
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-foreground">${b.amount.toFixed(2)}</p>
-                    <span className={`text-[10px] font-medium ${b.status === "Paid" ? "text-chart-green" : "text-chart-orange"}`}>{b.status}</span>
+                <p className="text-lg font-semibold text-foreground mb-1">Purchase in Progress</p>
+                <p className="text-sm text-muted-foreground mb-4">Your {selectedProduct.name} purchase is being processed.</p>
+                <button onClick={() => setShowPurchaseModal(false)}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90">
+                  Done
+                </button>
+              </div>
+            ) : purchaseStep === "validated" ? (
+              <div className="space-y-4">
+                <div className="glass rounded-xl p-4 text-center">
+                  <p className="text-sm text-muted-foreground">{selectedPrice?.name || selectedProduct.name}</p>
+                  <p className="text-3xl font-bold text-foreground mt-1">UGX {parseFloat(amount).toLocaleString()}</p>
+                  {customerName && <p className="text-xs text-muted-foreground mt-1">Customer: {customerName}</p>}
+                </div>
+                <div className="glass rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground">Phone: {phoneNumber}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Ref: {validationRef}</p>
+                </div>
+                <button onClick={handlePurchase} disabled={purchasing}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
+                  {purchasing ? <><Loader2 size={16} className="animate-spin" /> Processing...</> : "Confirm Purchase"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {selectedPrice && (
+                  <div className="glass rounded-xl p-4 text-center">
+                    <p className="text-sm text-muted-foreground">{selectedPrice.name}</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">UGX {selectedPrice.price.toLocaleString()}</p>
                   </div>
-                  {b.status === "Due" && (
-                    <button onClick={() => handlePayBill(b)}
-                      className="bg-primary text-primary-foreground px-3 py-1.5 rounded-xl text-xs font-medium hover:opacity-90 transition-opacity">
-                      Pay
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                )}
 
-      {/* All Recent Bills */}
-      <div className="glass rounded-2xl p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">All Recent Bills</h3>
-        <div className="space-y-3">
-          {bills.map(b => (
-            <div key={b.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-primary-foreground ${utilities.find(u => u.id === b.category)?.gradient || "stat-card-blue"}`}>
-                  {(() => { const Icon = utilities.find(u => u.id === b.category)?.icon || CreditCard; return <Icon size={14} />; })()}
-                </div>
+                {errorMsg && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle size={16} /> {errorMsg}
+                  </div>
+                )}
+
                 <div>
-                  <p className="text-sm font-medium text-foreground">{b.name}</p>
-                  <p className="text-xs text-muted-foreground">{b.date}</p>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Recipient Number (MSISDN / Meter No.)</label>
+                  <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. 0701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-foreground">${b.amount.toFixed(2)}</p>
-                <span className={`text-[10px] font-medium ${b.status === "Paid" ? "text-chart-green" : "text-chart-orange"}`}>{b.status}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Pay Bill Modal */}
-      {showPayModal && payingBill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowPayModal(false)}>
-          <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Pay Bill</h3>
-              <button onClick={() => setShowPayModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
-            </div>
-            <div className="space-y-4">
-              <div className="glass rounded-xl p-4 text-center">
-                <p className="text-sm text-muted-foreground">{payingBill.name}</p>
-                <p className="text-3xl font-bold text-foreground mt-1">${payingBill.amount.toFixed(2)}</p>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Payment Method</label>
-                <div className="space-y-2">
-                  {paymentMethods.map(m => {
-                    const Icon = m.icon;
-                    return (
-                      <button key={m.id} onClick={() => setPayMethod(m.id)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${payMethod === m.id ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                        <RadioDot selected={payMethod === m.id} />
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground ${m.id === "mobile" ? "stat-card-orange" : m.id === "bank" ? "stat-card-blue" : "stat-card-purple"}`}>
-                          <Icon size={16} />
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{m.label}</span>
-                      </button>
-                    );
-                  })}
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Contact Phone (for SMS notification)</label>
+                  <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. 0701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">
-                  {payMethod === "mobile" ? "Phone Number" : payMethod === "bank" ? "Account Number" : "Card Number"}
-                </label>
-                <input placeholder={payMethod === "mobile" ? "Enter phone number" : payMethod === "bank" ? "Enter account number" : "Enter card number"}
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              </div>
-              <button onClick={confirmPay}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity">
-                Pay ${payingBill.amount.toFixed(2)}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Add Bill Modal */}
-      {showAddBill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowAddBill(false)}>
-          <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Add New Bill</h3>
-              <button onClick={() => setShowAddBill(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Category</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {utilities.map(u => {
-                    const Icon = u.icon;
-                    return (
-                      <button key={u.id} onClick={() => { setNewBillCategory(u.id); setNewBillProvider(""); }}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl transition-all ${newBillCategory === u.id ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                        <RadioDot selected={newBillCategory === u.id} />
-                        <span className="text-xs font-medium text-foreground">{u.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">Provider</label>
-                <select value={newBillProvider} onChange={e => setNewBillProvider(e.target.value)}
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
-                  <option value="">Select provider...</option>
-                  {(providers[newBillCategory] || []).map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">Bill Name</label>
-                <input value={newBillName} onChange={e => setNewBillName(e.target.value)} placeholder="e.g. Monthly Electricity"
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">Amount ($)</label>
-                <input type="number" value={newBillAmount} onChange={e => setNewBillAmount(e.target.value)} placeholder="0.00"
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Billing Type</label>
-                <div className="flex gap-2">
-                  <button onClick={() => setNewBillRecurring(true)}
-                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${newBillRecurring ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                    <RadioDot selected={newBillRecurring} />
-                    <span className="text-sm font-medium text-foreground">Recurring</span>
-                  </button>
-                  <button onClick={() => setNewBillRecurring(false)}
-                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${!newBillRecurring ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                    <RadioDot selected={!newBillRecurring} />
-                    <span className="text-sm font-medium text-foreground">One-time</span>
-                  </button>
-                </div>
-              </div>
-              <button onClick={handleAddBill}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity">
-                Add Bill
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                {!selectedPrice && (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Amount (UGX)</label>
+                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000"
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                  </div>
+                )}
 
-      {/* Schedule Payment Modal */}
-      {showScheduleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowScheduleModal(false)}>
-          <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Schedule Payment</h3>
-              <button onClick={() => setShowScheduleModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">Select Bill</label>
-                <select className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
-                  <option value="">Choose a bill...</option>
-                  {bills.filter(b => b.status === "Due").map(b => (
-                    <option key={b.id} value={b.id}>{b.name} — ${b.amount.toFixed(2)}</option>
-                  ))}
-                </select>
+                {choiceList.length > 0 && (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Location</label>
+                    <select value={selectedChoice} onChange={e => setSelectedChoice(e.target.value)}
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
+                      <option value="">Select location...</option>
+                      {choiceList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                )}
+
+                <button onClick={handleValidate} disabled={validating || !phoneNumber || !amount}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
+                  {validating ? <><Loader2 size={16} className="animate-spin" /> Validating...</> : "Validate & Continue"}
+                </button>
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">Payment Date</label>
-                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Payment Method</label>
-                <div className="space-y-2">
-                  {paymentMethods.map(m => {
-                    const Icon = m.icon;
-                    return (
-                      <button key={m.id} onClick={() => setPayMethod(m.id)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${payMethod === m.id ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass"}`}>
-                        <RadioDot selected={payMethod === m.id} />
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground ${m.id === "mobile" ? "stat-card-orange" : m.id === "bank" ? "stat-card-blue" : "stat-card-purple"}`}>
-                          <Icon size={16} />
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{m.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <button onClick={() => { setShowScheduleModal(false); setScheduleDate(""); }}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity">
-                Schedule Payment
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
