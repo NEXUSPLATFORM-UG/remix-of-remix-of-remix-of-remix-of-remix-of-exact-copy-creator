@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100% / 0.55;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100% / 0.7;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 260 60% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 210 80% 95%;
+    --accent-foreground: 210 100% 45%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 90% / 0.5;
+    --input: 220 20% 90% / 0.5;
+    --ring: 210 100% 50%;
+
+    --radius: 1.25rem;
+
+    /* Liquid Glass tokens */
+    --glass-bg: 0 0% 100% / 0.45;
+    --glass-bg-hover: 0 0% 100% / 0.6;
+    --glass-border: 0 0% 100% / 0.35;
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --glass-blur: 20px;
+    --glass-blur-heavy: 40px;
+
+    /* Chart colors */
+    --chart-blue: 210 100% 50%;
+    --chart-purple: 260 60% 55%;
+    --chart-pink: 330 75% 60%;
+    --chart-orange: 25 95% 60%;
+    --chart-cyan: 185 75% 50%;
+    --chart-green: 155 65% 45%;
+    --chart-yellow: 45 95% 55%;
+
+    /* Gradient stat cards */
+    --stat-blue-from: 210 100% 50%;
+    --stat-blue-to: 200 90% 60%;
+    --stat-purple-from: 260 70% 55%;
+    --stat-purple-to: 280 65% 60%;
+    --stat-cyan-from: 185 75% 50%;
+    --stat-cyan-to: 200 80% 60%;
+    --stat-orange-from: 25 95% 55%;
+    --stat-orange-to: 40 90% 55%;
+    --stat-pink-from: 330 85% 55%;
+    --stat-pink-to: 350 80% 60%;
+
+    --sidebar-background: 0 0% 100% / 0.3;
+    --sidebar-foreground: 220 25% 15%;
+    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 80% 95% / 0.5;
+    --sidebar-accent-foreground: 210 100% 45%;
+    --sidebar-border: 0 0% 100% / 0.3;
+    --sidebar-ring: 210 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-heavy {
+    background: hsl(0 0% 100% / 0.6);
+    backdrop-filter: blur(var(--glass-blur-heavy));
+    -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-sidebar {
+    background: hsl(0 0% 100% / 0.25);
+    backdrop-filter: blur(var(--glass-blur-heavy));
+    -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+    border-right: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-input {
+    background: hsl(0 0% 100% / 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .liquid-gradient-bg {
+    background: 
+      radial-gradient(ellipse at 20% 50%, hsl(210 100% 85% / 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, hsl(260 80% 85% / 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, hsl(330 70% 90% / 0.3) 0%, transparent 50%),
+      hsl(var(--background));
+  }
+
+  .stat-card-blue {
+    background: linear-gradient(135deg, hsl(210 100% 50%) 0%, hsl(200 90% 60%) 100%);
+  }
+
+  .stat-card-purple {
+    background: linear-gradient(135deg, hsl(260 70% 55%) 0%, hsl(280 65% 60%) 100%);
+  }
+
+  .stat-card-cyan {
+    background: linear-gradient(135deg, hsl(185 75% 50%) 0%, hsl(200 80% 60%) 100%);
+  }
+
+  .stat-card-orange {
+    background: linear-gradient(135deg, hsl(25 95% 55%) 0%, hsl(40 90% 55%) 100%);
+  }
+
+  .stat-card-pink {
+    background: linear-gradient(135deg, hsl(330 85% 55%) 0%, hsl(350 80% 60%) 100%);
+  }
+
+  .stat-card-green {
+    background: linear-gradient(135deg, hsl(155 65% 45%) 0%, hsl(170 60% 50%) 100%);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 0% / 0.1);
+    border-radius: 100px;
+  }
+}
