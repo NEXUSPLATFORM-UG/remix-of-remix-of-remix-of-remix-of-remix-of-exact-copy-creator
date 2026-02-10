@@ -97,14 +97,14 @@ const TransferPage = () => {
   const [purchaseStep, setPurchaseStep] = useState<"form" | "validated" | "success" | "error">("form");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Fetch all products on mount, filter for bank transfer category
+  // Fetch only BANK_TRANSFERS products from Relworx
   useEffect(() => {
     setLoadingProducts(true);
     fetch(API_BASE)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setBankProducts(data.products);
+          setBankProducts(data.products.filter((p: Product) => p.category === "BANK_TRANSFERS"));
         }
       })
       .catch(() => toast({ title: "Error", description: "Failed to load bank transfer products", variant: "destructive" }))
@@ -211,13 +211,10 @@ const TransferPage = () => {
     }
   };
 
-  // Filter products - show all when bank method is active
+  // Filter bank transfer products by search
   const filteredBankProducts = bankProducts.filter(p =>
     !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // Group products by category
-  const categories = [...new Set(bankProducts.map(p => p.category))];
 
   return (
     <>
@@ -273,8 +270,8 @@ const TransferPage = () => {
           {/* Bank Transfer via Relworx */}
           {activeMethod === "bank" ? (
             <div className="glass rounded-2xl p-5">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Relworx Products</h3>
-              <p className="text-xs text-muted-foreground mb-4">Select a product to initiate transfer</p>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Bank Transfer</h3>
+              <p className="text-xs text-muted-foreground mb-4">Select a bank transfer product</p>
 
               {loadingProducts ? (
                 <div className="flex items-center justify-center py-12">
@@ -287,20 +284,6 @@ const TransferPage = () => {
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search products..."
                       className="glass-input w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-                  </div>
-
-                  {/* Category pills */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <button onClick={() => setSearchQuery("")}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${!searchQuery ? "bg-secondary text-secondary-foreground" : "glass text-muted-foreground hover:text-foreground"}`}>
-                      All ({bankProducts.length})
-                    </button>
-                    {categories.map(cat => (
-                      <button key={cat} onClick={() => setSearchQuery(cat.toLowerCase())}
-                        className="glass px-3 py-1.5 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground transition-all">
-                        {cat} ({bankProducts.filter(p => p.category === cat).length})
-                      </button>
-                    ))}
                   </div>
 
                   {/* Product list */}
