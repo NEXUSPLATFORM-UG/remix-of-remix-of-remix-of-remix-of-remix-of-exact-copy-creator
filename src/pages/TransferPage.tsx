@@ -1,11 +1,34 @@
-import { ArrowLeftRight, ArrowDown, Building2, Users, Smartphone, Landmark, PiggyBank, TrendingUp, Clock, X, ArrowUpRight } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeftRight, ArrowDown, Building2, Users, Smartphone, Landmark, PiggyBank, TrendingUp, Clock, X, ArrowUpRight, Loader2, CheckCircle, AlertCircle, ChevronRight, Search } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import PageHeader from "@/components/PageHeader";
 import StatCardSmall from "@/components/StatCardSmall";
+import { toast } from "@/hooks/use-toast";
+
+const API_BASE = "https://api.livrauganda.workers.dev/api/products";
+
+interface Product {
+  name: string;
+  code: string;
+  category: string;
+  has_price_list: boolean;
+  has_choice_list: boolean;
+  billable: boolean;
+}
+
+interface PriceItem {
+  code: string;
+  name: string;
+  price: number;
+}
+
+interface ChoiceItem {
+  id: string;
+  name: string;
+}
 
 const transferMethods = [
-  { id: "bank", icon: Building2, label: "Bank Account", desc: "Transfer to bank", gradient: "stat-card-blue" },
+  { id: "bank", icon: Building2, label: "Bank Transfer", desc: "Via Relworx", gradient: "stat-card-blue" },
   { id: "livra", icon: Users, label: "Livra User", desc: "Internal transfer", gradient: "stat-card-purple" },
   { id: "mobile", icon: Smartphone, label: "Mobile Money", desc: "MTN, Airtel", gradient: "stat-card-orange" },
   { id: "western", icon: Landmark, label: "Western Union", desc: "Global transfers", gradient: "stat-card-cyan" },
@@ -51,6 +74,151 @@ const TransferPage = () => {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [modalAmount, setModalAmount] = useState("");
 
+  // Relworx bank transfer state
+  const [bankProducts, setBankProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [priceList, setPriceList] = useState<PriceItem[]>([]);
+  const [choiceList, setChoiceList] = useState<ChoiceItem[]>([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Purchase flow
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [selectedPrice, setSelectedPrice] = useState<PriceItem | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [purchaseAmount, setPurchaseAmount] = useState("");
+  const [selectedChoice, setSelectedChoice] = useState("");
+  const [validating, setValidating] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const [validationRef, setValidationRef] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [purchaseStep, setPurchaseStep] = useState<"form" | "validated" | "success" | "error">("form");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Fetch all products on mount, filter for bank transfer category
+  useEffect(() => {
+    setLoadingProducts(true);
+    fetch(API_BASE)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setBankProducts(data.products);
+        }
+      })
+      .catch(() => toast({ title: "Error", description: "Failed to load bank transfer products", variant: "destructive" }))
+      .finally(() => setLoadingProducts(false));
+  }, []);
+
+  const handleSelectProduct = async (product: Product) => {
+    setSelectedProduct(product);
+    setPriceList([]);
+    setChoiceList([]);
+    setLoadingDetails(true);
+
+    const promises: Promise<void>[] = [];
+    if (product.has_price_list) {
+      promises.push(
+        fetch(`${API_BASE}/price-list?code=${product.code}`)
+          .then(res => res.json())
+          .then(data => { if (data.success) setPriceList(data.price_list); })
+      );
+    }
+    if (product.has_choice_list) {
+      promises.push(
+        fetch(`${API_BASE}/choice-list?code=${product.code}`)
+          .then(res => res.json())
+          .then(data => { if (data.success) setChoiceList(data.choice_list); })
+      );
+    }
+    await Promise.all(promises).catch(() => {});
+    setLoadingDetails(false);
+  };
+
+  const openPurchase = (priceItem?: PriceItem) => {
+    setSelectedPrice(priceItem || null);
+    if (priceItem) setPurchaseAmount(String(priceItem.price));
+    else setPurchaseAmount("");
+    setPhoneNumber("");
+    setContactPhone("");
+    setSelectedChoice("");
+    setValidationRef("");
+    setCustomerName("");
+    setPurchaseStep("form");
+    setErrorMsg("");
+    setShowPurchaseModal(true);
+  };
+
+  const handleValidate = async () => {
+    if (!phoneNumber || !purchaseAmount || !selectedProduct) return;
+    setValidating(true);
+    setErrorMsg("");
+    try {
+      const body: Record<string, string | number> = {
+        msisdn: phoneNumber,
+        amount: parseFloat(purchaseAmount),
+        product_code: selectedPrice?.code || selectedProduct.code,
+        contact_phone: contactPhone || phoneNumber,
+      };
+      if (selectedChoice) body.location_id = selectedChoice;
+
+      const res = await fetch(`${API_BASE}/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setValidationRef(data.validation_reference);
+        setCustomerName(data.customer_name || "");
+        setPurchaseStep("validated");
+      } else {
+        setErrorMsg(data.message || "Validation failed");
+        setPurchaseStep("error");
+      }
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+      setPurchaseStep("error");
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const handlePurchase = async () => {
+    if (!validationRef) return;
+    setPurchasing(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch(`${API_BASE}/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ validation_reference: validationRef }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPurchaseStep("success");
+        toast({ title: "Success", description: data.message || "Transfer in progress" });
+      } else {
+        setErrorMsg(data.message || "Transfer failed");
+        setPurchaseStep("error");
+      }
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+      setPurchaseStep("error");
+    } finally {
+      setPurchasing(false);
+    }
+  };
+
+  // Filter products - show all when bank method is active
+  const filteredBankProducts = bankProducts.filter(p =>
+    !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Group products by category
+  const categories = [...new Set(bankProducts.map(p => p.category))];
+
   return (
     <>
       <PageHeader title="Transfer" subtitle="Move funds between accounts & services" />
@@ -82,12 +250,12 @@ const TransferPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         <div className="lg:col-span-2">
-          {/* Transfer Methods with round markers */}
+          {/* Transfer Methods */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
             {transferMethods.map(m => {
               const Icon = m.icon;
               return (
-                <button key={m.id} onClick={() => setActiveMethod(m.id)}
+                <button key={m.id} onClick={() => { setActiveMethod(m.id); setSelectedProduct(null); setSearchQuery(""); }}
                   className={`glass rounded-2xl p-4 text-center transition-all ${activeMethod === m.id ? "ring-2 ring-secondary" : ""}`}>
                   <div className="flex justify-center mb-2">
                     <RadioDot selected={activeMethod === m.id} />
@@ -102,48 +270,153 @@ const TransferPage = () => {
             })}
           </div>
 
-          <div className="glass rounded-2xl p-6">
-            <h3 className="text-sm font-semibold text-foreground mb-4">Transfer via {transferMethods.find(m => m.id === activeMethod)?.label}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">From</label>
-                <select className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
-                  {accounts.map(a => <option key={a.name}>{a.name} — {a.balance}</option>)}
-                </select>
-              </div>
+          {/* Bank Transfer via Relworx */}
+          {activeMethod === "bank" ? (
+            <div className="glass rounded-2xl p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-3">Relworx Products</h3>
+              <p className="text-xs text-muted-foreground mb-4">Select a product to initiate transfer</p>
 
-              <div className="flex justify-center">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                  <ArrowDown size={18} />
+              {loadingProducts ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-muted-foreground" size={24} />
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Search */}
+                  <div className="relative mb-4">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search products..."
+                      className="glass-input w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                  </div>
 
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">
-                  {activeMethod === "bank" ? "Bank Account Number" :
-                   activeMethod === "livra" ? "Livra Username" :
-                   activeMethod === "mobile" ? "Phone Number" :
-                   activeMethod === "western" ? "Western Union Recipient" : "Savings Account"}
-                </label>
-                <input placeholder={
-                  activeMethod === "bank" ? "Enter account number" :
-                  activeMethod === "livra" ? "Enter username or email" :
-                  activeMethod === "mobile" ? "Enter phone number" :
-                  activeMethod === "western" ? "Enter recipient details" : "Select savings account"
-                } className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              </div>
+                  {/* Category pills */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button onClick={() => setSearchQuery("")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${!searchQuery ? "bg-secondary text-secondary-foreground" : "glass text-muted-foreground hover:text-foreground"}`}>
+                      All ({bankProducts.length})
+                    </button>
+                    {categories.map(cat => (
+                      <button key={cat} onClick={() => setSearchQuery(cat.toLowerCase())}
+                        className="glass px-3 py-1.5 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground transition-all">
+                        {cat} ({bankProducts.filter(p => p.category === cat).length})
+                      </button>
+                    ))}
+                  </div>
 
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block">Amount</label>
-                <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="$0.00"
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              </div>
+                  {/* Product list */}
+                  <div className="space-y-2 max-h-[350px] overflow-y-auto scrollbar-thin">
+                    {filteredBankProducts.map(p => {
+                      const isSelected = selectedProduct?.code === p.code;
+                      return (
+                        <button key={p.code} onClick={() => handleSelectProduct(p)}
+                          className={`w-full flex items-center justify-between p-3 rounded-xl transition-all text-left ${isSelected ? "ring-2 ring-secondary bg-[hsl(0_0%_100%/0.4)]" : "glass hover:bg-[hsl(0_0%_100%/0.5)]"}`}>
+                          <div className="flex items-center gap-3">
+                            <RadioDot selected={isSelected} />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{p.name}</p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground">{p.category}</span>
+                                {p.has_price_list && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-secondary/10 text-secondary font-medium">Packages</span>}
+                                {p.has_choice_list && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-chart-orange/10 text-chart-orange font-medium">Options</span>}
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight size={14} className="text-muted-foreground" />
+                        </button>
+                      );
+                    })}
+                    {filteredBankProducts.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-8">No products found</p>
+                    )}
+                  </div>
 
-              <button className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                <ArrowLeftRight size={16} /> Transfer Now
-              </button>
+                  {/* Selected product details */}
+                  {selectedProduct && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      {loadingDetails ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="animate-spin text-muted-foreground" size={20} />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-9 h-9 rounded-xl stat-card-blue flex items-center justify-center text-primary-foreground">
+                              <Building2 size={16} />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground">{selectedProduct.name}</h4>
+                              <p className="text-xs text-muted-foreground">{selectedProduct.category} • {selectedProduct.code}</p>
+                            </div>
+                          </div>
+
+                          {priceList.length > 0 && (
+                            <div className="space-y-2 max-h-[200px] overflow-y-auto scrollbar-thin mb-3">
+                              {priceList.map(item => (
+                                <button key={item.code} onClick={() => openPurchase(item)}
+                                  className="w-full flex items-center justify-between p-3 rounded-xl glass hover:bg-[hsl(0_0%_100%/0.5)] transition-all text-left">
+                                  <p className="text-sm font-medium text-foreground flex-1 mr-3">{item.name}</p>
+                                  <span className="text-sm font-bold text-foreground shrink-0">UGX {item.price.toLocaleString()}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          {priceList.length === 0 && (
+                            <button onClick={() => openPurchase()}
+                              className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                              <ArrowLeftRight size={16} /> Transfer via {selectedProduct.name}
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-          </div>
+          ) : (
+            /* Other transfer methods - existing form */
+            <div className="glass rounded-2xl p-6">
+              <h3 className="text-sm font-semibold text-foreground mb-4">Transfer via {transferMethods.find(m => m.id === activeMethod)?.label}</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">From</label>
+                  <select className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
+                    {accounts.map(a => <option key={a.name}>{a.name} — {a.balance}</option>)}
+                  </select>
+                </div>
+
+                <div className="flex justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                    <ArrowDown size={18} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">
+                    {activeMethod === "livra" ? "Livra Username" :
+                     activeMethod === "mobile" ? "Phone Number" :
+                     activeMethod === "western" ? "Western Union Recipient" : "Savings Account"}
+                  </label>
+                  <input placeholder={
+                    activeMethod === "livra" ? "Enter username or email" :
+                    activeMethod === "mobile" ? "Enter phone number" :
+                    activeMethod === "western" ? "Enter recipient details" : "Select savings account"
+                  } className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Amount</label>
+                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="$0.00"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <button className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                  <ArrowLeftRight size={16} /> Transfer Now
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-5">
@@ -201,21 +474,97 @@ const TransferPage = () => {
         </div>
       </div>
 
-      {showTransferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowTransferModal(false)}>
-          <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+      {/* Relworx Purchase Modal */}
+      {showPurchaseModal && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowPurchaseModal(false)}>
+          <div className="glass-heavy rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Quick Transfer</h3>
-              <button onClick={() => setShowTransferModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+              <h3 className="text-lg font-semibold text-foreground">
+                {purchaseStep === "success" ? "Transfer Complete" : purchaseStep === "validated" ? "Confirm Transfer" : "Transfer Details"}
+              </h3>
+              <button onClick={() => setShowPurchaseModal(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
             </div>
-            <div className="space-y-4">
-              <input type="number" value={modalAmount} onChange={e => setModalAmount(e.target.value)} placeholder="$0.00"
-                className="glass-input w-full px-4 py-3 rounded-xl text-2xl font-bold text-center text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-              <button onClick={() => { setShowTransferModal(false); setModalAmount(""); }}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity">
-                Transfer Now
-              </button>
-            </div>
+
+            {purchaseStep === "success" ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 rounded-full stat-card-green flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle size={28} className="text-primary-foreground" />
+                </div>
+                <p className="text-lg font-semibold text-foreground mb-1">Transfer in Progress</p>
+                <p className="text-sm text-muted-foreground mb-4">Your {selectedProduct.name} transfer is being processed.</p>
+                <button onClick={() => setShowPurchaseModal(false)}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90">
+                  Done
+                </button>
+              </div>
+            ) : purchaseStep === "validated" ? (
+              <div className="space-y-4">
+                <div className="glass rounded-xl p-4 text-center">
+                  <p className="text-sm text-muted-foreground">{selectedPrice?.name || selectedProduct.name}</p>
+                  <p className="text-3xl font-bold text-foreground mt-1">UGX {parseFloat(purchaseAmount).toLocaleString()}</p>
+                  {customerName && <p className="text-xs text-muted-foreground mt-1">Customer: {customerName}</p>}
+                </div>
+                <div className="glass rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground">Phone: {phoneNumber}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Ref: {validationRef}</p>
+                </div>
+                <button onClick={handlePurchase} disabled={purchasing}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
+                  {purchasing ? <><Loader2 size={16} className="animate-spin" /> Processing...</> : "Confirm Transfer"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {selectedPrice && (
+                  <div className="glass rounded-xl p-4 text-center">
+                    <p className="text-sm text-muted-foreground">{selectedPrice.name}</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">UGX {selectedPrice.price.toLocaleString()}</p>
+                  </div>
+                )}
+
+                {errorMsg && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle size={16} /> {errorMsg}
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Recipient Number</label>
+                  <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. 0701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Contact Phone (SMS notification)</label>
+                  <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. 0701234567"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+
+                {!selectedPrice && (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Amount (UGX)</label>
+                    <input type="number" value={purchaseAmount} onChange={e => setPurchaseAmount(e.target.value)} placeholder="Enter amount"
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                  </div>
+                )}
+
+                {choiceList.length > 0 && (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Location</label>
+                    <select value={selectedChoice} onChange={e => setSelectedChoice(e.target.value)}
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
+                      <option value="">Select location</option>
+                      {choiceList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                )}
+
+                <button onClick={handleValidate} disabled={validating || !phoneNumber || !purchaseAmount}
+                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
+                  {validating ? <><Loader2 size={16} className="animate-spin" /> Validating...</> : <><ArrowLeftRight size={16} /> Validate & Transfer</>}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
