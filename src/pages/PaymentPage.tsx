@@ -1,0 +1,114 @@
+import { useState, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Smartphone, Loader2, CheckCircle, AlertCircle, ArrowDownToLine } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
+const API_BASE = "https://api.livrauganda.workers.dev/api";
+
+type ModalStep = "form" | "processing" | "polling" | "success" | "error";
+
+const PaymentPage = () => {
+  const [searchParams] = useSearchParams();
+  const dataParam = searchParams.get("data");
+
+  let paymentData = { amount: "", description: "", id: "" };
+  try {
+    if (dataParam) paymentData = JSON.parse(atob(dataParam));
+  } catch { /* invalid data */ }
+
+  const [msisdn, setMsisdn] = useState("");
+  const [amount, setAmount] = useState(paymentData.amount || "");
+  const [step, setStep] = useState<ModalStep>("form");
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+  }, []);
+
+  const pollStatus = useCallback((internalRef: string) => {
+    let attempts = 0;
+    pollRef.current = setInterval(async () => {
+      attempts++;
+      if (attempts > 60) { stopPolling(); setError("Timed out."); setStep("error"); return; }
+      try {
+        const res = await fetch(`${API_BASE}/request-status?internal_reference=${internalRef}`);
+        const data = await res.json();
+        if (data.success && data.request_status === "success") { stopPolling(); setResult(data); setStep("success"); toast({ title: "Success", description: "Payment completed!" }); }
+        else if (data.request_status === "failed") { stopPolling(); setError(data.message || "Failed"); setStep("error"); }
+      } catch { /* silent */ }
+    }, 5000);
+  }, [stopPolling]);
+
+  const handlePay = async () => {
+    if (!msisdn || !amount) return;
+    setStep("processing"); setError("");
+    try {
+      const res = await fetch(`${API_BASE}/deposit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ msisdn, amount: parseFloat(amount), description: paymentData.description || "Payment" }) });
+      const data = await res.json();
+      if (data.success && data.internal_reference) { setStep("polling"); pollStatus(data.internal_reference); }
+      else { setError(data.message || "Failed"); setStep("error"); }
+    } catch { setError("Network error."); setStep("error"); }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[hsl(220_30%_96%)] to-[hsl(220_20%_90%)] flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="glass-heavy rounded-2xl p-8 shadow-2xl">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 rounded-2xl stat-card-blue flex items-center justify-center text-primary-foreground mx-auto mb-4">
+              <ArrowDownToLine size={28} />
+            </div>
+            <h1 className="text-xl font-bold text-foreground">Livra Payment</h1>
+            {paymentData.description && <p className="text-sm text-muted-foreground mt-1">{paymentData.description}</p>}
+            {paymentData.amount && <p className="text-3xl font-bold text-foreground mt-2">UGX {parseFloat(paymentData.amount).toLocaleString()}</p>}
+          </div>
+
+          {step === "success" ? (
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 rounded-full stat-card-green flex items-center justify-center mx-auto"><CheckCircle size={28} className="text-primary-foreground" /></div>
+              <p className="text-lg font-semibold text-foreground">Payment Successful!</p>
+              <p className="text-sm text-muted-foreground">Thank you for your payment.</p>
+              {result && (
+                <div className="glass rounded-xl p-3 space-y-1 text-left">
+                  {result.amount && <p className="text-xs text-muted-foreground">Amount: {String(result.amount)} {String(result.currency || "UGX")}</p>}
+                  {result.provider && <p className="text-xs text-muted-foreground">Provider: {String(result.provider)}</p>}
+                  {result.provider_transaction_id && <p className="text-xs text-muted-foreground">Transaction ID: {String(result.provider_transaction_id)}</p>}
+                </div>
+              )}
+            </div>
+          ) : step === "polling" ? (
+            <div className="text-center space-y-4 py-6">
+              <Loader2 size={32} className="animate-spin text-secondary mx-auto" />
+              <p className="text-sm font-medium text-foreground">Waiting for payment confirmation...</p>
+              <p className="text-xs text-muted-foreground">Please complete the payment on your phone.</p>
+            </div>
+          ) : step === "processing" ? (
+            <div className="flex items-center justify-center py-10"><Loader2 size={28} className="animate-spin text-muted-foreground" /></div>
+          ) : (
+            <div className="space-y-4">
+              {error && <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm"><AlertCircle size={16} /> {error}</div>}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1.5 block">msisdn <span className="text-[10px]">(Your mobile money number)</span></label>
+                <input value={msisdn} onChange={e => setMsisdn(e.target.value)} placeholder="+256701234567" className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+              </div>
+              {!paymentData.amount && (
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 block">amount <span className="text-[10px]">(UGX)</span></label>
+                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="5000" className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                </div>
+              )}
+              <button onClick={handlePay} disabled={!msisdn || !amount} className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2">
+                <Smartphone size={16} /> Pay with Mobile Money
+              </button>
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground text-center mt-4">Powered by Livra</p>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentPage;
