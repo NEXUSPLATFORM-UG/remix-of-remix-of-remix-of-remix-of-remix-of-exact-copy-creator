@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowDown, Building2, Users, Smartphone, Landmark, PiggyBank, TrendingUp, Clock, X, ArrowUpRight, Loader2, CheckCircle, AlertCircle, ChevronRight, Search } from "lucide-react";
+import { ArrowLeftRight, ArrowDown, Building2, Users, Smartphone, PiggyBank, TrendingUp, Clock, X, ArrowUpRight, Loader2, CheckCircle, AlertCircle, ChevronRight, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import PageHeader from "@/components/PageHeader";
@@ -31,8 +31,15 @@ const transferMethods = [
   { id: "bank", icon: Building2, label: "Bank Transfer", desc: "Via Relworx", gradient: "stat-card-blue" },
   { id: "livra", icon: Users, label: "Livra User", desc: "Internal transfer", gradient: "stat-card-purple" },
   { id: "mobile", icon: Smartphone, label: "Mobile Money", desc: "MTN, Airtel", gradient: "stat-card-orange" },
-  { id: "western", icon: Landmark, label: "Western Union", desc: "Global transfers", gradient: "stat-card-cyan" },
   { id: "saving", icon: PiggyBank, label: "Savings Account", desc: "Move to savings", gradient: "stat-card-green" },
+];
+
+const savingsGoals = [
+  { id: 1, name: "Emergency Fund", current: 7500, target: 10000 },
+  { id: 2, name: "Vacation", current: 2100, target: 5000 },
+  { id: 3, name: "Build Wealth", current: 12300, target: 50000 },
+  { id: 4, name: "New Car", current: 8400, target: 25000 },
+  { id: 5, name: "Build Home", current: 15000, target: 100000 },
 ];
 
 const accounts = [
@@ -45,7 +52,7 @@ const recentTransfers = [
   { name: "Chase Bank (xxx432)", method: "Bank", amount: "$2,000.00", date: "Today", status: "Completed" },
   { name: "David Chen", method: "Livra", amount: "$500.00", date: "Yesterday", status: "Completed" },
   { name: "MTN Mobile", method: "Mobile Money", amount: "$150.00", date: "Feb 8", status: "Completed" },
-  { name: "Western Union - UK", method: "Western Union", amount: "$1,200.00", date: "Feb 7", status: "Pending" },
+  { name: "Emergency Fund", method: "Savings", amount: "UGX 1,200", date: "Feb 7", status: "Completed" },
   { name: "Emergency Fund", method: "Savings", amount: "$300.00", date: "Feb 6", status: "Completed" },
 ];
 
@@ -53,7 +60,7 @@ const frequentRecipients = [
   { name: "Chase Bank", method: "Bank", count: 8 },
   { name: "David Chen", method: "Livra", count: 12 },
   { name: "MTN Mobile", method: "Mobile", count: 6 },
-  { name: "Western Union UK", method: "Western Union", count: 3 },
+  { name: "Emergency Fund", method: "Savings", count: 3 },
 ];
 
 const transferAnalytics = [
@@ -224,7 +231,7 @@ const TransferPage = () => {
         <StatCardSmall icon={<ArrowLeftRight size={18} />} label="Total Transferred" value="$18,320" gradient="stat-card-blue" />
         <StatCardSmall icon={<Building2 size={18} />} label="To Banks" value="$8,500" gradient="stat-card-cyan" />
         <StatCardSmall icon={<Smartphone size={18} />} label="Mobile Money" value="$3,200" gradient="stat-card-orange" />
-        <StatCardSmall icon={<Landmark size={18} />} label="Western Union" value="$6,620" gradient="stat-card-purple" />
+        <StatCardSmall icon={<PiggyBank size={18} />} label="To Savings" value="UGX 6,620" gradient="stat-card-purple" />
       </div>
 
       <div className="glass rounded-2xl p-5 mb-5">
@@ -248,7 +255,7 @@ const TransferPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         <div className="lg:col-span-2">
           {/* Transfer Methods */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
             {transferMethods.map(m => {
               const Icon = m.icon;
               return (
@@ -375,18 +382,26 @@ const TransferPage = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1.5 block">
-                    {activeMethod === "livra" ? "Livra Username" :
-                     activeMethod === "mobile" ? "Phone Number" :
-                     activeMethod === "western" ? "Western Union Recipient" : "Savings Account"}
-                  </label>
-                  <input placeholder={
-                    activeMethod === "livra" ? "Enter username or email" :
-                    activeMethod === "mobile" ? "Enter phone number" :
-                    activeMethod === "western" ? "Enter recipient details" : "Select savings account"
-                  } className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
-                </div>
+                {activeMethod === "saving" ? (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Select Savings Goal</label>
+                    <select className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
+                      <option value="">Choose a goal...</option>
+                      {savingsGoals.map(g => (
+                        <option key={g.id} value={g.id}>{g.name} (UGX {g.current.toLocaleString()} / {g.target.toLocaleString()})</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">
+                      {activeMethod === "livra" ? "Livra Code" : "Phone Number"}
+                    </label>
+                    <input placeholder={
+                      activeMethod === "livra" ? "Enter Livra code" : "Enter phone number"
+                    } className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
+                  </div>
+                )}
 
                 <div>
                   <label className="text-xs text-muted-foreground mb-1.5 block">Amount</label>

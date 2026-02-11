@@ -17,6 +17,7 @@ import InsurancePage from "./pages/InsurancePage";
 import DeveloperPage from "./pages/DeveloperPage";
 import DocumentationPage from "./pages/DocumentationPage";
 import SettingsPage from "./pages/SettingsPage";
+import PaymentPage from "./pages/PaymentPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/documentation" element={<DocumentationPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
+          <Route path="/pay" element={<PaymentPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
