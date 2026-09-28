@@ -1,3 +1,3 @@
-- [ ] Restore the right-side payment illustration
-- [ ] Restore the earlier 3D payment artwork
-- [ ] Refine the method grid into a soft transparent liquid-glass design
+- [x] Restore the right-side payment illustration
+- [x] Restore the earlier 3D payment artwork
+- [x] Refine the method grid into a soft transparent liquid-glass design
