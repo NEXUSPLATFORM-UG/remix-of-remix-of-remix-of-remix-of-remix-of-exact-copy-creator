@@ -12,7 +12,7 @@ import mtnMomoVisual from "@/assets/mtn-momo-local.png";
 import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
-
+  Store, Fuel, UtensilsCrossed, Stethoscope,
 } from "lucide-react";
 
 
@@ -158,9 +158,9 @@ const LandingPage = () => (
             <article key={title} className="milk-card group relative min-h-[210px] overflow-hidden rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
               <div className="mb-5 flex h-14 w-16 items-center justify-start">
                 {brands ? (
-                  <div className="flex h-12 w-full flex-row items-center justify-start gap-3 overflow-hidden">
+                  <div className="flex h-12 w-full flex-row items-center justify-start gap-4 overflow-hidden">
                     {brands.map((brand) => (
-                      <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-5 w-auto object-contain" loading="lazy" width={48} height={20} />
+                      <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-8 w-auto object-contain" loading="lazy" width={72} height={32} />
                     ))}
                   </div>
                 ) : logo ? (
@@ -188,6 +188,31 @@ const LandingPage = () => (
             <p className="text-5xl font-bold text-primary/30 mb-4">{s.n}</p>
             <h3 className="text-lg font-semibold mb-2">{s.title}</h3>
             <p className="text-sm text-muted-foreground">{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* Business */}
+    <section id="business" className="w-full px-6 lg:px-12 xl:px-20 py-20">
+      <div className="max-w-2xl mx-auto text-center mb-12">
+        <p className="mb-3 text-sm font-medium text-primary">Built for business</p>
+        <h2 className="text-4xl font-bold tracking-tight">Accept payments wherever you do business.</h2>
+        <p className="mt-4 text-muted-foreground">From the shop counter to the clinic door, FinFlow helps businesses of every size get paid.</p>
+      </div>
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { i: Store, title: "Supermarkets", text: "Ring up every till with instant Mobile Money and card payments at checkout." },
+          { i: Fuel, title: "Petrol Stations", text: "Serve drivers fast with contactless payments, day and night." },
+          { i: UtensilsCrossed, title: "Restaurants", text: "Let diners pay their bill by MoMo, QR code or card in seconds." },
+          { i: Stethoscope, title: "Clinics", text: "Collect consultation and pharmacy payments without the queue." },
+        ].map(({ i: I, title, text }) => (
+          <div key={title} className="milk-card group rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
+            <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-accent/70 shadow-[var(--glass-shadow)]">
+              <I size={24} className="text-primary" strokeWidth={2.2} />
+            </span>
+            <h3 className="mb-3 text-lg font-semibold">{title}</h3>
+            <p className="text-base leading-relaxed text-muted-foreground">{text}</p>
           </div>
         ))}
       </div>
