@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
+import featuresVisual from "@/assets/features-visual.png";
 import {
   ArrowRight, Smartphone, Landmark, CreditCard, Zap, PiggyBank, Shield,
   QrCode, Globe, CheckCircle2, Send, Wallet, Radio, Goal,
@@ -133,18 +134,34 @@ const LandingPage = () => (
 
     {/* Features */}
     <section id="features" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="max-w-2xl mb-12">
-        <p className="text-sm font-medium text-primary mb-3">Everything in one place</p>
-        <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
-      </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {features.map(({ icon: I, title, text }) => (
-          <div key={title} className="glass rounded-2xl p-6 hover:-translate-y-1 transition-transform">
-            <span className="w-11 h-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-4"><I size={20} /></span>
-            <h3 className="font-semibold mb-1.5">{title}</h3>
-            <p className="text-sm text-muted-foreground">{text}</p>
+      <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 items-center">
+        <div className="flex justify-center lg:justify-start">
+          <img
+            src={featuresVisual}
+            alt="Ways to pay with FinFlow"
+            className="w-full max-w-md lg:max-w-none rounded-3xl"
+            loading="lazy"
+          />
+        </div>
+        <div>
+          <div className="max-w-2xl mb-10">
+            <p className="text-sm font-medium text-primary mb-3">Everything in one place</p>
+            <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
           </div>
-        ))}
+          <div className="grid sm:grid-cols-2 gap-3.5">
+            {features.map(({ icon: I, title, text }) => (
+              <div key={title} className="glass rounded-2xl p-4 hover:-translate-y-0.5 transition-transform">
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 shrink-0 rounded-xl bg-primary/15 text-primary flex items-center justify-center"><I size={16} /></span>
+                  <div>
+                    <h3 className="font-semibold text-sm mb-0.5">{title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{text}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
 
