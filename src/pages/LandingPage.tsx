@@ -34,7 +34,8 @@ const features = [
 const steps = [
   { n: "01", title: "Create your account", text: "Sign up in under two minutes with your phone number." },
   { n: "02", title: "Verify your business", text: "Confirm your details to unlock higher limits and business payments." },
-  { n: "03", title: "Add money — receive, send, save, exchange, transfer", text: "Fund your wallet with Mobile Money, card or bank, then receive, send, save, exchange and transfer — all in one place." },
+  { n: "03", title: "Add money", text: "Fund your wallet with Mobile Money, card or bank transfer." },
+  { n: "04", title: "Receive, send, save, exchange, transfer", text: "Do everything with your funded wallet — all in one place." },
 ];
 
 const LandingPage = () => (
@@ -157,9 +158,9 @@ const LandingPage = () => (
             <article key={title} className="milk-card group relative min-h-[210px] overflow-hidden rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
               <div className="mb-5 flex h-14 w-16 items-center justify-start">
                 {brands ? (
-                  <div className="flex h-12 w-16 flex-col items-start justify-center gap-1 overflow-hidden">
+                  <div className="flex h-12 w-full flex-row items-center justify-start gap-3 overflow-hidden">
                     {brands.map((brand) => (
-                      <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-5 w-full object-contain object-left" loading="lazy" width={64} height={20} />
+                      <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-5 w-auto object-contain" loading="lazy" width={48} height={20} />
                     ))}
                   </div>
                 ) : logo ? (
@@ -180,8 +181,8 @@ const LandingPage = () => (
 
     {/* How it works */}
     <section id="how" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <h2 className="text-4xl font-bold tracking-tight mb-12 text-center">Get started in three steps</h2>
-      <div className="grid md:grid-cols-3 gap-5">
+      <h2 className="text-4xl font-bold tracking-tight mb-12 text-center">Get started in four steps</h2>
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
         {steps.map((s) => (
           <div key={s.n} className="glass-heavy rounded-2xl p-8">
             <p className="text-5xl font-bold text-primary/30 mb-4">{s.n}</p>
