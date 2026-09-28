@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Wallet, label: "Wallet", path: "/wallet" },
   { icon: Send, label: "Send", path: "/send" },
   { icon: ArrowDownToLine, label: "Deposit", path: "/deposit" },
@@ -57,7 +57,7 @@ const DashboardSidebar = () => {
             <NavLink
               key={item.label}
               to={item.path}
-              end={item.path === "/"}
+              end={item.path === "/dashboard"}
               className={({ isActive }) =>
                 `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all mb-0.5 group
                 ${isActive
