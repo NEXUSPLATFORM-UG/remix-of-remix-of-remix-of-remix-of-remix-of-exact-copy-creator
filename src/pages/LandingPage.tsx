@@ -24,6 +24,9 @@ const features = [
   { icon: Zap, title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity in seconds." },
   { icon: QrCode, title: "Payment Links & QR", text: "Create a link or QR code and get paid by anyone." },
   { icon: PiggyBank, title: "Savings Goals", text: "Set goals and move money aside automatically." },
+  { icon: Wallet, title: "PayPal", text: "Connect PayPal to send and receive payments worldwide." },
+  { icon: Radio, title: "Google Pay", text: "Pay quickly and securely from your Android devices." },
+  { icon: Goal, title: "Apple Pay", text: "Make private, contactless payments from Apple devices." },
 ];
 
 const steps = [
@@ -124,35 +127,6 @@ const LandingPage = () => (
             <p className="text-xs text-muted-foreground">UGX 75,000 via payment link</p>
           </div>
         </div>
-      </div>
-    </section>
-
-    {/* Available payment methods */}
-    <section className="w-full px-6 lg:px-12 xl:px-20 py-20 border-y border-border/40 bg-background/30">
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-10">
-        <div className="max-w-2xl">
-          <p className="text-sm font-medium text-primary mb-3">Pay your way</p>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Available payment methods</h2>
-        </div>
-        <p className="text-muted-foreground max-w-md lg:text-right">
-          Move money locally or globally with the payment option that works best for you.
-        </p>
-      </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/60">
-        {paymentMethods.map(({ icon: Icon, title, text, mark }) => (
-          <article key={title} className="min-h-48 bg-background/80 p-6 flex flex-col justify-between gap-7 transition-colors hover:bg-background">
-            <div className="flex items-start justify-between gap-4">
-              <span className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Icon size={20} />
-              </span>
-              <span className="text-sm font-bold text-foreground/45" aria-hidden="true">{mark}</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-1.5">{title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>
-            </div>
-          </article>
-        ))}
       </div>
     </section>
 
