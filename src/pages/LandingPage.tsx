@@ -23,7 +23,7 @@ const LandingPage = () => (
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
     <header className="sticky top-0 z-40 glass border-b border-border/40">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="w-full px-6 lg:px-12 xl:px-20 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg tracking-tight">
           <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">F</span>
           FinFlow
@@ -44,7 +44,7 @@ const LandingPage = () => (
     </header>
 
     {/* Hero */}
-    <section className="max-w-6xl mx-auto px-6 pt-20 pb-24 grid lg:grid-cols-2 gap-14 items-center">
+    <section className="w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 grid lg:grid-cols-2 gap-14 items-center">
       <div>
         <span className="inline-flex items-center gap-2 glass px-3 py-1 rounded-full text-xs text-muted-foreground mb-6">
           <Globe size={12} className="text-primary" /> Built for Africa, ready for the world
@@ -114,7 +114,7 @@ const LandingPage = () => (
     </section>
 
     {/* Stats */}
-    <section className="max-w-6xl mx-auto px-6 pb-20">
+    <section className="w-full px-6 lg:px-12 xl:px-20 pb-20">
       <div className="glass rounded-3xl grid grid-cols-2 md:grid-cols-4 divide-x divide-border/40">
         {[["50K+", "Active users"], ["UGX 12B+", "Processed"], ["99.9%", "Uptime"], ["< 10s", "Avg. transfer"]].map(([v, l]) => (
           <div key={l} className="p-6 text-center">
@@ -126,7 +126,7 @@ const LandingPage = () => (
     </section>
 
     {/* Features */}
-    <section id="features" className="max-w-6xl mx-auto px-6 py-20">
+    <section id="features" className="w-full px-6 lg:px-12 xl:px-20 py-20">
       <div className="max-w-2xl mb-12">
         <p className="text-sm font-medium text-primary mb-3">Everything in one place</p>
         <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
@@ -143,7 +143,7 @@ const LandingPage = () => (
     </section>
 
     {/* How it works */}
-    <section id="how" className="max-w-6xl mx-auto px-6 py-20">
+    <section id="how" className="w-full px-6 lg:px-12 xl:px-20 py-20">
       <h2 className="text-4xl font-bold tracking-tight mb-12 text-center">Get started in three steps</h2>
       <div className="grid md:grid-cols-3 gap-5">
         {steps.map((s) => (
@@ -157,7 +157,7 @@ const LandingPage = () => (
     </section>
 
     {/* Security */}
-    <section id="security" className="max-w-6xl mx-auto px-6 py-20">
+    <section id="security" className="w-full px-6 lg:px-12 xl:px-20 py-20">
       <div className="glass-heavy rounded-3xl p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <span className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-5"><Shield size={22} /></span>
@@ -175,7 +175,7 @@ const LandingPage = () => (
     </section>
 
     {/* CTA */}
-    <section className="max-w-6xl mx-auto px-6 py-20">
+    <section className="w-full px-6 lg:px-12 xl:px-20 py-20">
       <div className="rounded-3xl bg-primary text-primary-foreground p-12 md:p-16 text-center">
         <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Ready to move money smarter?</h2>
         <p className="opacity-80 mb-8 max-w-xl mx-auto">Join thousands who send, receive and save with FinFlow every day.</p>
@@ -187,7 +187,7 @@ const LandingPage = () => (
 
     {/* Footer */}
     <footer className="border-t border-border/40">
-      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-4 text-sm text-muted-foreground">
+      <div className="w-full px-6 lg:px-12 xl:px-20 py-10 flex flex-col md:flex-row justify-between gap-4 text-sm text-muted-foreground">
         <p>© {new Date().getFullYear()} FinFlow. All rights reserved.</p>
         <div className="flex gap-6">
           <a href="#features" className="hover:text-foreground">Features</a>
