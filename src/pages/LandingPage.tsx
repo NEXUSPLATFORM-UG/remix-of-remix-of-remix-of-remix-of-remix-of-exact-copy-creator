@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
-import paypalLogo from "@/assets/paypal.svg.asset.json";
-import googlePayLogo from "@/assets/google-pay.svg.asset.json";
-import applePayLogo from "@/assets/apple-pay.svg.asset.json";
+import paypalLogo from "@/assets/paypal-flat.png";
+import googlePayLogo from "@/assets/google-pay-flat.png";
+import applePayLogo from "@/assets/apple-pay-flat.png";
 import mtnMomoVisual from "@/assets/mtn-momo-local.png";
 import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import {
@@ -21,9 +21,9 @@ const features = [
   { title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity.", icon: ReceiptText },
   { title: "Payment Links & QR", text: "Create a link or QR code and get paid by anyone.", icon: QrCode },
   { title: "Savings Goals", text: "Set goals and move money aside automatically.", icon: PiggyBank },
-  { title: "PayPal", text: "Send and receive payments worldwide.", logo: paypalLogo.url },
-  { title: "Google Pay", text: "Pay quickly and securely from Android devices.", logo: googlePayLogo.url },
-  { title: "Apple Pay", text: "Make private, contactless payments.", logo: applePayLogo.url },
+  { title: "PayPal", text: "Send and receive payments worldwide.", logo: paypalLogo },
+  { title: "Google Pay", text: "Pay quickly and securely from Android devices.", logo: googlePayLogo },
+  { title: "Apple Pay", text: "Make private, contactless payments.", logo: applePayLogo },
 ];
 
 const steps = [
