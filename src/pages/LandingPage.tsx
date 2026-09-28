@@ -5,17 +5,6 @@ import {
   QrCode, Globe, CheckCircle2, Send, Wallet, Radio, ScanLine, Goal,
 } from "lucide-react";
 
-const paymentMethods = [
-  { icon: Smartphone, title: "Mobile Money", text: "Deposit and withdraw instantly with MTN and Airtel.", mark: "MoMo" },
-  { icon: Landmark, title: "Bank Transfers", text: "Send money straight to any local bank account.", mark: "BANK" },
-  { icon: CreditCard, title: "Card Payments", text: "Top up your wallet with local and international cards.", mark: "VISA" },
-  { icon: Zap, title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity in seconds.", mark: "BILLS" },
-  { icon: ScanLine, title: "Payment Links & QR", text: "Create a link or QR code and get paid by anyone.", mark: "QR" },
-  { icon: Goal, title: "Savings Goals", text: "Set goals and move money aside automatically.", mark: "SAVE" },
-  { icon: Wallet, title: "PayPal", text: "Connect PayPal to send and receive payments worldwide.", mark: "PayPal" },
-  { icon: Radio, title: "Google Pay", text: "Pay quickly and securely from your Android devices.", mark: "G Pay" },
-  { icon: Smartphone, title: "Apple Pay", text: "Make private, contactless payments from Apple devices.", mark: " Pay" },
-];
 
 const features = [
   { icon: Smartphone, title: "Mobile Money", text: "Deposit and withdraw instantly with MTN and Airtel." },
