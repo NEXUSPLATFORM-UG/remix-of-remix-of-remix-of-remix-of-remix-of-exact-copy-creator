@@ -1,0 +1,2 @@
+- [ ] Match the landing-page payment-method grid exactly to the uploaded reference
+- [ ] Replace glossy 3D payment artwork with flat, realistic imagery
