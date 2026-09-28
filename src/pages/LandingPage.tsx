@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
 import {
   ArrowRight, Smartphone, Landmark, CreditCard, Zap, PiggyBank, Shield,
-  QrCode, Globe, CheckCircle2, Send, Wallet, Radio, ScanLine, Goal,
+  QrCode, CheckCircle2, Send, Wallet, Radio, Goal,
 } from "lucide-react";
 
 
