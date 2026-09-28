@@ -154,7 +154,7 @@ const LandingPage = () => (
         <img src={featureVisual} alt="" aria-hidden="true" className="payment-visual-float pointer-events-none absolute right-[8%] top-1/2 z-0 hidden w-[42%] -translate-y-1/2 object-contain opacity-25 blur-[0.5px] lg:block" loading="lazy" width={686} height={635} />
         <div className="relative z-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {features.map(({ icon: I, title, text, logo, brands }) => (
-            <article key={title} className="group relative min-h-[210px] overflow-hidden rounded-2xl bg-card/70 p-6 shadow-[var(--glass-shadow)] backdrop-blur-2xl transition duration-500 hover:-translate-y-1 hover:bg-card/90 motion-reduce:transform-none motion-reduce:transition-none">
+            <article key={title} className="milk-card group relative min-h-[210px] overflow-hidden rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
               <div className="mb-5 flex h-14 w-16 items-center justify-start">
                 {brands ? (
                   <div className="flex h-12 w-16 flex-col items-start justify-center gap-1 overflow-hidden">

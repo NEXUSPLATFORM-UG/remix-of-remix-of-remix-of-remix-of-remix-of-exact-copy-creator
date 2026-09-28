@@ -41,6 +41,9 @@
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     --glass-blur: 20px;
     --glass-blur-heavy: 40px;
+    --milk-card: 0 0% 100% / 0.68;
+    --milk-card-hover: 0 0% 100% / 0.82;
+    --milk-shadow: 0 14px 40px hsl(214 55% 55% / 0.1);
 
     /* Chart colors */
     --chart-blue: 210 100% 50%;
@@ -126,6 +129,17 @@
 
   .payment-visual-float {
     animation: payment-visual-float 7s ease-in-out infinite;
+  }
+
+  .milk-card {
+    background: hsl(var(--milk-card));
+    box-shadow: var(--milk-shadow);
+    backdrop-filter: blur(28px) saturate(120%);
+    -webkit-backdrop-filter: blur(28px) saturate(120%);
+  }
+
+  .milk-card:hover {
+    background: hsl(var(--milk-card-hover));
   }
 
   .stat-card-blue {
