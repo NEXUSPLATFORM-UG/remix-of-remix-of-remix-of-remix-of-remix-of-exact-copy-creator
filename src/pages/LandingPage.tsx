@@ -181,8 +181,8 @@ const LandingPage = () => (
 
     {/* How it works */}
     <section id="how" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <h2 className="text-4xl font-bold tracking-tight mb-12 text-center">Get started in three steps</h2>
-      <div className="grid md:grid-cols-3 gap-5">
+      <h2 className="text-4xl font-bold tracking-tight mb-12 text-center">Get started in four steps</h2>
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
         {steps.map((s) => (
           <div key={s.n} className="glass-heavy rounded-2xl p-8">
             <p className="text-5xl font-bold text-primary/30 mb-4">{s.n}</p>
