@@ -146,44 +146,34 @@ const LandingPage = () => (
 
     {/* Features */}
     <section id="features" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="relative overflow-hidden rounded-[2rem] border border-border/50 bg-card/20 p-6 shadow-[var(--glass-shadow)] backdrop-blur-3xl md:p-10 xl:p-12">
-        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-secondary/10 blur-3xl" />
-        <div className="relative grid items-center gap-12 xl:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)]">
-          <div>
-            <div className="mb-9 max-w-2xl">
-              <p className="mb-3 text-sm font-medium text-primary">Everything in one place</p>
-              <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3">
-              {features.map(({ icon: I, title, text, logo, brands }) => (
-                <article key={title} className="group relative min-h-[190px] overflow-hidden rounded-2xl border border-border/50 bg-card/30 p-5 shadow-[var(--glass-shadow)] backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-primary/20 hover:bg-card/50 motion-reduce:transform-none motion-reduce:transition-none">
-                  <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                  <div className="mb-4 flex h-14 w-16 items-center justify-start">
-                    {brands ? (
-                      <div className="flex h-12 w-16 flex-col items-start justify-center gap-1 overflow-hidden">
-                        {brands.map((brand) => (
-                          <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-5 w-full object-contain object-left" loading="lazy" width={64} height={20} />
-                        ))}
-                      </div>
-                    ) : logo ? (
-                      <img src={logo} alt="" aria-hidden="true" className="h-14 w-16 object-contain object-left drop-shadow-lg transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-105 motion-reduce:transform-none" loading="lazy" width={64} height={56} />
-                    ) : I ? (
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/70 shadow-[var(--glass-shadow)]">
-                        <I size={24} className="text-primary" strokeWidth={2.2} />
-                      </span>
-                    ) : null}
+      <div className="relative">
+        <div className="mb-10 max-w-2xl">
+          <p className="mb-3 text-sm font-medium text-primary">Everything in one place</p>
+          <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
+        </div>
+        <img src={featureVisual} alt="" aria-hidden="true" className="payment-visual-float pointer-events-none absolute right-[8%] top-1/2 z-0 hidden w-[42%] -translate-y-1/2 object-contain opacity-25 blur-[0.5px] lg:block" loading="lazy" width={686} height={635} />
+        <div className="relative z-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {features.map(({ icon: I, title, text, logo, brands }) => (
+            <article key={title} className="milk-card group relative min-h-[210px] overflow-hidden rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
+              <div className="mb-5 flex h-14 w-16 items-center justify-start">
+                {brands ? (
+                  <div className="flex h-12 w-16 flex-col items-start justify-center gap-1 overflow-hidden">
+                    {brands.map((brand) => (
+                      <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-5 w-full object-contain object-left" loading="lazy" width={64} height={20} />
+                    ))}
                   </div>
-                  <h3 className="mb-2 text-base font-semibold">{title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-          <div className="relative mx-auto flex min-h-[360px] w-full max-w-lg items-center justify-center xl:min-h-[560px]">
-            <div className="absolute inset-[12%] rounded-full border border-primary/10 bg-primary/5 blur-2xl" />
-            <img src={featureVisual} alt="Global payment network" className="payment-visual-float relative z-10 h-auto w-full object-contain drop-shadow-2xl" loading="lazy" width={686} height={635} />
-          </div>
+                ) : logo ? (
+                  <img src={logo} alt="" aria-hidden="true" className="h-14 w-16 object-contain object-left drop-shadow-lg transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-105 motion-reduce:transform-none" loading="lazy" width={64} height={56} />
+                ) : I ? (
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/70 shadow-[var(--glass-shadow)]">
+                    <I size={24} className="text-primary" strokeWidth={2.2} />
+                  </span>
+                ) : null}
+              </div>
+              <h3 className="mb-3 text-lg font-semibold">{title}</h3>
+              <p className="max-w-sm text-base leading-relaxed text-muted-foreground">{text}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
