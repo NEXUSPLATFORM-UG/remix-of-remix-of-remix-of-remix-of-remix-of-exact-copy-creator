@@ -33,8 +33,8 @@ const features = [
 
 const steps = [
   { n: "01", title: "Create your account", text: "Sign up in under two minutes with your phone number." },
-  { n: "02", title: "Add money", text: "Fund your wallet with Mobile Money, card or bank." },
-  { n: "03", title: "Send, pay, save", text: "Move money anywhere, pay bills and grow your savings." },
+  { n: "02", title: "Verify your business", text: "Confirm your details to unlock higher limits and business payments." },
+  { n: "03", title: "Add money — receive, send, save, exchange, transfer", text: "Fund your wallet with Mobile Money, card or bank, then receive, send, save, exchange and transfer — all in one place." },
 ];
 
 const LandingPage = () => (
@@ -147,7 +147,7 @@ const LandingPage = () => (
     {/* Features */}
     <section id="features" className="w-full px-6 lg:px-12 xl:px-20 py-20">
       <div className="relative">
-        <div className="mb-10 max-w-2xl">
+        <div className="mb-10 max-w-2xl mx-auto text-center">
           <p className="mb-3 text-sm font-medium text-primary">Everything in one place</p>
           <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
         </div>
