@@ -1,2 +1,3 @@
-- [x] Match the landing-page payment-method grid exactly to the uploaded reference
-- [x] Replace glossy 3D payment artwork with flat, realistic imagery
+- [ ] Restore the right-side payment illustration
+- [ ] Restore the earlier 3D payment artwork
+- [ ] Refine the method grid into a soft transparent liquid-glass design
