@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import MoneyFlowBackground from "@/components/MoneyFlowBackground";
 import {
   ArrowRight, Smartphone, Landmark, CreditCard, Zap, PiggyBank, Shield,
   QrCode, Globe, CheckCircle2, Send, Wallet,
@@ -44,7 +45,8 @@ const LandingPage = () => (
     </header>
 
     {/* Hero */}
-    <section className="w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 grid lg:grid-cols-2 gap-14 items-center">
+    <section className="relative isolate w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 min-h-[calc(100vh-4rem)] grid lg:grid-cols-2 gap-14 items-center">
+      <div className="absolute inset-0 -z-10"><MoneyFlowBackground /></div>
       <div>
         <span className="inline-flex items-center gap-2 glass px-3 py-1 rounded-full text-xs text-muted-foreground mb-6">
           <Globe size={12} className="text-primary" /> Built for Africa, ready for the world
