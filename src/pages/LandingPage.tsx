@@ -1,17 +1,13 @@
 import { Link } from "react-router-dom";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
-import featuresVisual from "@/assets/features-visual.png";
-import bankTransferVisual from "@/assets/bank-transfer-3d.png";
-import cardPaymentVisual from "@/assets/card-payment-3d.png";
-import billsAirtimeVisual from "@/assets/bills-airtime-3d.png";
-import savingsVisual from "@/assets/savings-3d.png";
-import paypalVisual from "@/assets/paypal-3d.png";
-import googlePayVisual from "@/assets/google-pay-3d.png";
-import applePayVisual from "@/assets/apple-pay-3d.png";
+import paypalLogo from "@/assets/paypal.svg.asset.json";
+import googlePayLogo from "@/assets/google-pay.svg.asset.json";
+import applePayLogo from "@/assets/apple-pay.svg.asset.json";
 import mtnMomoVisual from "@/assets/mtn-momo-local.png";
 import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
+  Landmark, CreditCard, ReceiptText, PiggyBank,
 } from "lucide-react";
 
 
@@ -20,14 +16,14 @@ const features = [
     { src: mtnMomoVisual, alt: "MTN MoMo" },
     { src: airtelMoneyVisual, alt: "Airtel Money" },
   ] },
-  { title: "Bank Transfers", text: "Send money straight to any local bank account.", image: bankTransferVisual },
-  { title: "Card Payments", text: "Top up with local and international cards.", image: cardPaymentVisual },
-  { title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity.", image: billsAirtimeVisual },
+  { title: "Bank Transfers", text: "Send money straight to any local bank account.", icon: Landmark },
+  { title: "Card Payments", text: "Top up with local and international cards.", icon: CreditCard },
+  { title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity.", icon: ReceiptText },
   { title: "Payment Links & QR", text: "Create a link or QR code and get paid by anyone.", icon: QrCode },
-  { title: "Savings Goals", text: "Set goals and move money aside automatically.", image: savingsVisual },
-  { title: "PayPal", text: "Send and receive payments worldwide.", image: paypalVisual },
-  { title: "Google Pay", text: "Pay quickly and securely from Android devices.", image: googlePayVisual },
-  { title: "Apple Pay", text: "Make private, contactless payments.", image: applePayVisual },
+  { title: "Savings Goals", text: "Set goals and move money aside automatically.", icon: PiggyBank },
+  { title: "PayPal", text: "Send and receive payments worldwide.", logo: paypalLogo.url },
+  { title: "Google Pay", text: "Pay quickly and securely from Android devices.", logo: googlePayLogo.url },
+  { title: "Apple Pay", text: "Make private, contactless payments.", logo: applePayLogo.url },
 ];
 
 const steps = [
@@ -145,46 +141,30 @@ const LandingPage = () => (
 
     {/* Features */}
     <section id="features" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-12 items-center">
-        <div className="order-2 lg:order-1">
-          <div className="max-w-2xl mb-10">
-            <p className="text-sm font-medium text-primary mb-3">Everything in one place</p>
-            <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3.5">
-            {features.map(({ icon: I, title, text, image, brands }) => (
-              <div key={title} className="glass rounded-2xl p-4 min-h-[92px] hover:-translate-y-0.5 transition-transform">
-                <div className="flex h-full items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-sm mb-0.5">{title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{text}</p>
-                  </div>
-                  {brands ? (
-                    <div className="w-20 shrink-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-background/60 p-1.5">
-                      {brands.map((brand) => (
-                        <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-6 w-full object-contain" loading="lazy" width={80} height={24} />
-                      ))}
-                    </div>
-                  ) : image ? (
-                    <img src={image} alt="" aria-hidden="true" className="h-16 w-16 shrink-0 object-contain" loading="lazy" width={816} height={816} />
-                  ) : I ? (
-                    <span className="w-12 h-12 shrink-0 rounded-xl bg-primary/15 text-primary flex items-center justify-center"><I size={20} /></span>
-                  ) : null}
+      <div className="mb-12 max-w-2xl">
+        <p className="text-sm font-medium text-primary mb-3">Everything in one place</p>
+        <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
+      </div>
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-9">
+        {features.map(({ icon: I, title, text, logo, brands }) => (
+          <article key={title} className="min-h-[236px] rounded-lg border border-border/60 bg-card p-6 shadow-[var(--glass-shadow)]">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+              {brands ? (
+                <div className="flex h-9 w-9 flex-col items-center justify-center gap-0.5 overflow-hidden">
+                  {brands.map((brand) => (
+                    <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-4 w-full object-contain" loading="lazy" width={40} height={16} />
+                  ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-          <img
-            src={featuresVisual}
-            alt="Global payment activity"
-            className="w-full max-w-md lg:max-w-none rounded-3xl"
-            loading="lazy"
-            width={686}
-            height={635}
-          />
-        </div>
+              ) : logo ? (
+                <img src={logo} alt="" aria-hidden="true" className="h-6 w-8 object-contain" loading="lazy" width={32} height={24} />
+              ) : I ? (
+                <I size={25} className="text-primary" strokeWidth={2.2} />
+              ) : null}
+            </div>
+            <h3 className="mb-4 text-lg font-semibold">{title}</h3>
+            <p className="max-w-sm text-base leading-relaxed text-muted-foreground">{text}</p>
+          </article>
+        ))}
       </div>
     </section>
 
