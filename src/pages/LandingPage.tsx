@@ -1,22 +1,33 @@
 import { Link } from "react-router-dom";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
 import featuresVisual from "@/assets/features-visual.png";
+import bankTransferVisual from "@/assets/bank-transfer-3d.png";
+import cardPaymentVisual from "@/assets/card-payment-3d.png";
+import billsAirtimeVisual from "@/assets/bills-airtime-3d.png";
+import savingsVisual from "@/assets/savings-3d.png";
+import paypalVisual from "@/assets/paypal-3d.png";
+import googlePayVisual from "@/assets/google-pay-3d.png";
+import applePayVisual from "@/assets/apple-pay-3d.png";
+import mtnMomoVisual from "@/assets/mtn-momo-local.png";
+import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import {
-  ArrowRight, Smartphone, Landmark, CreditCard, Zap, PiggyBank, Shield,
-  QrCode, Globe, CheckCircle2, Send, Wallet, Radio, Goal,
+  ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
 } from "lucide-react";
 
 
 const features = [
-  { icon: Smartphone, title: "Mobile Money", text: "Deposit and withdraw instantly with MTN and Airtel." },
-  { icon: Landmark, title: "Bank Transfers", text: "Send money straight to any local bank account." },
-  { icon: CreditCard, title: "Card Payments", text: "Top up your wallet with local and international cards." },
-  { icon: Zap, title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity in seconds." },
-  { icon: QrCode, title: "Payment Links & QR", text: "Create a link or QR code and get paid by anyone." },
-  { icon: PiggyBank, title: "Savings Goals", text: "Set goals and move money aside automatically." },
-  { icon: Wallet, title: "PayPal", text: "Connect PayPal to send and receive payments worldwide." },
-  { icon: Radio, title: "Google Pay", text: "Pay quickly and securely from your Android devices." },
-  { icon: Goal, title: "Apple Pay", text: "Make private, contactless payments from Apple devices." },
+  { title: "Mobile Money", text: "Deposit and withdraw instantly.", brands: [
+    { src: mtnMomoVisual, alt: "MTN MoMo" },
+    { src: airtelMoneyVisual, alt: "Airtel Money" },
+  ] },
+  { title: "Bank Transfers", text: "Send money straight to any local bank account.", image: bankTransferVisual },
+  { title: "Card Payments", text: "Top up with local and international cards.", image: cardPaymentVisual },
+  { title: "Bills & Airtime", text: "Pay for airtime, data, TV and electricity.", image: billsAirtimeVisual },
+  { title: "Payment Links & QR", text: "Create a link or QR code and get paid by anyone.", icon: QrCode },
+  { title: "Savings Goals", text: "Set goals and move money aside automatically.", image: savingsVisual },
+  { title: "PayPal", text: "Send and receive payments worldwide.", image: paypalVisual },
+  { title: "Google Pay", text: "Pay quickly and securely from Android devices.", image: googlePayVisual },
+  { title: "Apple Pay", text: "Make private, contactless payments.", image: applePayVisual },
 ];
 
 const steps = [
@@ -134,33 +145,45 @@ const LandingPage = () => (
 
     {/* Features */}
     <section id="features" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 items-center">
-        <div className="flex justify-center lg:justify-start">
-          <img
-            src={featuresVisual}
-            alt="Ways to pay with FinFlow"
-            className="w-full max-w-md lg:max-w-none rounded-3xl"
-            loading="lazy"
-          />
-        </div>
-        <div>
+      <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-12 items-center">
+        <div className="order-2 lg:order-1">
           <div className="max-w-2xl mb-10">
             <p className="text-sm font-medium text-primary mb-3">Everything in one place</p>
             <h2 className="text-4xl font-bold tracking-tight">All the ways you move money, in one app.</h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-3.5">
-            {features.map(({ icon: I, title, text }) => (
-              <div key={title} className="glass rounded-2xl p-4 hover:-translate-y-0.5 transition-transform">
-                <div className="flex items-start gap-3">
-                  <span className="w-9 h-9 shrink-0 rounded-xl bg-primary/15 text-primary flex items-center justify-center"><I size={16} /></span>
-                  <div>
+            {features.map(({ icon: I, title, text, image, brands }) => (
+              <div key={title} className="glass rounded-2xl p-4 min-h-[92px] hover:-translate-y-0.5 transition-transform">
+                <div className="flex h-full items-center gap-3">
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-sm mb-0.5">{title}</h3>
                     <p className="text-xs text-muted-foreground leading-relaxed">{text}</p>
                   </div>
+                  {brands ? (
+                    <div className="w-20 shrink-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-background/60 p-1.5">
+                      {brands.map((brand) => (
+                        <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-6 w-full object-contain" loading="lazy" width={80} height={24} />
+                      ))}
+                    </div>
+                  ) : image ? (
+                    <img src={image} alt="" aria-hidden="true" className="h-16 w-16 shrink-0 object-contain" loading="lazy" width={816} height={816} />
+                  ) : I ? (
+                    <span className="w-12 h-12 shrink-0 rounded-xl bg-primary/15 text-primary flex items-center justify-center"><I size={20} /></span>
+                  ) : null}
                 </div>
               </div>
             ))}
           </div>
+        </div>
+        <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+          <img
+            src={featuresVisual}
+            alt="Global payment activity"
+            className="w-full max-w-md lg:max-w-none rounded-3xl"
+            loading="lazy"
+            width={686}
+            height={635}
+          />
         </div>
       </div>
     </section>
