@@ -1,3 +1,5 @@
 - [x] Restore the right-side payment illustration
 - [x] Restore the earlier 3D payment artwork
 - [x] Refine the method grid into a soft transparent liquid-glass design
+- [x] Remove the outlined section holder and reduce its height
+- [x] Spread the milky card grid full width with the globe behind it
