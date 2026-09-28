@@ -8,8 +8,8 @@ import savingsVisual from "@/assets/savings-3d.png";
 import paypalVisual from "@/assets/paypal-3d.png";
 import googlePayVisual from "@/assets/google-pay-3d.png";
 import applePayVisual from "@/assets/apple-pay-3d.png";
-import mtnMomoAsset from "@/assets/mtn-momo.png.asset.json";
-import airtelMoneyAsset from "@/assets/airtel-money.png.asset.json";
+import mtnMomoVisual from "@/assets/mtn-momo-local.png";
+import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
 } from "lucide-react";
@@ -17,8 +17,8 @@ import {
 
 const features = [
   { title: "Mobile Money", text: "Deposit and withdraw instantly.", brands: [
-    { src: mtnMomoAsset.url, alt: "MTN MoMo" },
-    { src: airtelMoneyAsset.url, alt: "Airtel Money" },
+    { src: mtnMomoVisual, alt: "MTN MoMo" },
+    { src: airtelMoneyVisual, alt: "Airtel Money" },
   ] },
   { title: "Bank Transfers", text: "Send money straight to any local bank account.", image: bankTransferVisual },
   { title: "Card Payments", text: "Top up with local and international cards.", image: cardPaymentVisual },
