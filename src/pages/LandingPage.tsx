@@ -12,7 +12,7 @@ import mtnMomoVisual from "@/assets/mtn-momo-local.png";
 import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
-  Landmark, CreditCard, ReceiptText, PiggyBank,
+
 } from "lucide-react";
 
 
