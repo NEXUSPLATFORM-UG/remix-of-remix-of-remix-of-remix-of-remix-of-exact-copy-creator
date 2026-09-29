@@ -203,12 +203,20 @@ const LandingPage = () => (
       </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { i: Store, title: "Supermarkets", text: "Ring up every till with instant Mobile Money and card payments at checkout." },
+          { i: Store, title: "Supermarkets", text: "Ring up every till with instant Mobile Money and card payments at checkout.", photo: businessSupermarketPhoto },
           { i: Fuel, title: "Petrol Stations", text: "Serve drivers fast with contactless payments, day and night." },
           { i: UtensilsCrossed, title: "Restaurants", text: "Let diners pay their bill by MoMo, QR code or card in seconds." },
           { i: Stethoscope, title: "Clinics", text: "Collect consultation and pharmacy payments without the queue." },
-        ].map(({ i: I, title, text }) => (
-          <div key={title} className="milk-card group rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
+        ].map(({ i: I, title, text, photo }) => (
+          <div key={title} className="milk-card group relative rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
+            {photo && (
+              <img
+                src={photo}
+                alt={title}
+                loading="lazy"
+                className="absolute right-4 top-4 h-16 w-16 rounded-full object-cover shadow-[var(--glass-shadow)] ring-4 ring-background/60 transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
+              />
+            )}
             <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-accent/70 shadow-[var(--glass-shadow)]">
               <I size={24} className="text-primary" strokeWidth={2.2} />
             </span>
