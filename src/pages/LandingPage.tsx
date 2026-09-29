@@ -131,45 +131,8 @@ const LandingPage = () => {
       </div>
 
       {/* Hero visual */}
-      <div className="relative">
-        <div className="glass-heavy rounded-3xl p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-xs text-muted-foreground">Wallet balance</p>
-              <p className="text-3xl font-bold tracking-tight">UGX 4,567,530</p>
-            </div>
-            <span className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center"><Wallet size={18} /></span>
-          </div>
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            {[{ i: Send, l: "Send" }, { i: Smartphone, l: "Deposit" }, { i: QrCode, l: "Receive" }].map(({ i: I, l }) => (
-              <div key={l} className="glass rounded-2xl py-3 flex flex-col items-center gap-1.5 text-xs">
-                <I size={18} className="text-primary" />{l}
-              </div>
-            ))}
-          </div>
-          <div className="space-y-3">
-            {[
-              { n: "MTN Mobile Money", a: "+ 250,000", s: "Deposit" },
-              { n: "Stanbic Bank", a: "- 1,200,000", s: "Bank transfer" },
-              { n: "UMEME Yaka", a: "- 50,000", s: "Electricity" },
-            ].map((t) => (
-              <div key={t.n} className="flex items-center justify-between glass rounded-xl px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium">{t.n}</p>
-                  <p className="text-xs text-muted-foreground">{t.s}</p>
-                </div>
-                <p className={`text-sm font-semibold ${t.a.startsWith("+") ? "text-primary" : "text-foreground"}`}>{t.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="absolute -bottom-6 -left-6 glass-heavy rounded-2xl px-4 py-3 flex items-center gap-3 shadow-lg">
-          <CheckCircle2 className="text-primary" size={20} />
-          <div>
-            <p className="text-sm font-medium">Payment received</p>
-            <p className="text-xs text-muted-foreground">UGX 75,000 via payment link</p>
-          </div>
-        </div>
+      <div className="relative flex justify-center lg:justify-end">
+        <img src={featureVisual} alt="Livra payment methods floating around the globe" className="w-full max-w-xl object-contain drop-shadow-2xl" width={686} height={635} loading="eager" />
       </div>
     </section>
 
