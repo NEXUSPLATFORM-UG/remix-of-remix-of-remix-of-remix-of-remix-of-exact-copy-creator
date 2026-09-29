@@ -94,9 +94,9 @@ const LandingPage = () => {
           <a href="#pricing" className="whitespace-nowrap transition-colors hover:text-primary">Pricing</a>
           <a href="#support" className="whitespace-nowrap transition-colors hover:text-primary">Support</a>
         </nav>
-        <div className="flex items-center gap-2">
-          <button onClick={() => openAuth("login")} className="px-4 py-2 text-sm rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
-          <button onClick={() => openAuth("register")} className="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
+        <div className="flex shrink-0 items-center gap-2 xl:gap-3">
+          <button onClick={() => openAuth("login")} className="px-4 py-2 text-base rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
+          <button onClick={() => openAuth("register")} className="px-5 py-2.5 text-base rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
             Get started
           </button>
         </div>
