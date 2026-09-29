@@ -1,6 +1,8 @@
 import { User, Bell, Lock, Palette, Globe, Shield, ChevronRight, Camera, Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
+import { useMainCurrency, currencies } from "@/hooks/use-main-currency";
+import { toast } from "sonner";
 
 const SettingsPage = () => {
   const [name, setName] = useState("John Doe");
@@ -9,6 +11,7 @@ const SettingsPage = () => {
   const [language, setLanguage] = useState("English");
   const [notifications, setNotifications] = useState({ email: true, push: true, sms: false });
   const [twoFactor, setTwoFactor] = useState(false);
+  const { code, setCurrency } = useMainCurrency();
 
   return (
     <>
@@ -107,8 +110,9 @@ const SettingsPage = () => {
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Currency</label>
-            <select className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 appearance-none">
-              <option>USD ($)</option><option>EUR (€)</option><option>GBP (£)</option>
+            <select value={code} onChange={async e => { try { await setCurrency(e.target.value); toast.success(`Main currency set to ${e.target.value}`); } catch { toast.error("Could not save currency"); } }}
+              className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 appearance-none">
+              {currencies.map(c => <option key={c.code} value={c.code}>{c.code} — {c.name}</option>)}
             </select>
           </div>
         </div>
