@@ -1,10 +1,12 @@
 import { useMainCurrency } from "@/hooks/use-main-currency";
-import { ArrowDownRight, Copy, QrCode, Share2, Link2, Smartphone, ArrowDownLeft, TrendingUp, CheckCircle, X, Loader2, AlertCircle } from "lucide-react";
+import { Copy, QrCode, Share2, Link2, Smartphone, ArrowDownLeft, TrendingUp, CheckCircle, X, Loader2, AlertCircle, Building2, CreditCard, Clock3 } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import PageHeader from "@/components/PageHeader";
 import StatCardSmall from "@/components/StatCardSmall";
 import { toast } from "@/hooks/use-toast";
+import BankTransferFlow from "@/components/BankTransferFlow";
+import { buildPaymentUrl, createPaymentLinkData } from "@/lib/payment-links";
 
 const API_BASE = "https://api.livrauganda.workers.dev/api";
 
@@ -20,6 +22,8 @@ const receiveMethods = [
   { id: "qr" as const, icon: QrCode, label: "QR Code", desc: "Scan to pay", gradient: "stat-card-purple" },
   { id: "link" as const, icon: Link2, label: "Payment Link", desc: "Share a link", gradient: "stat-card-blue" },
   { id: "mobile" as const, icon: Smartphone, label: "Mobile Money", desc: "Request payment", gradient: "stat-card-orange" },
+  { id: "bank" as const, icon: Building2, label: "Bank Transfer", desc: "Via Relworx", gradient: "stat-card-cyan" },
+  { id: "card" as const, icon: CreditCard, label: "Card", desc: "Coming soon", gradient: "stat-card-green" },
 ];
 
 const RadioDot = ({ selected }: { selected: boolean }) => (
@@ -46,8 +50,8 @@ const ScanningQr = ({ value, compact = false }: { value: string; compact?: boole
 );
 
 const ReceivePage = () => {
-  const { cx, symbol } = useMainCurrency();
-  const [activeTab, setActiveTab] = useState<"qr" | "link" | "mobile">("qr");
+  const { cx, symbol, code } = useMainCurrency();
+  const [activeTab, setActiveTab] = useState<"qr" | "link" | "mobile" | "bank" | "card">("qr");
   const [requestAmount, setRequestAmount] = useState("");
   const [paymentDescription, setPaymentDescription] = useState("");
   const [copied, setCopied] = useState(false);
@@ -95,9 +99,7 @@ const ReceivePage = () => {
   const closeDepositModal = () => { stopPolling(depositPollRef); setShowDepositModal(false); setDepositStep("form"); setDepositMsisdn(""); setDepositAmount(""); setDepositDescription(""); setDepositError(""); setDepositResult(null); };
 
   const generatePaymentLink = () => {
-    const paymentData = { amount: requestAmount, description: paymentDescription, id: `PAY-${Date.now()}` };
-    const encoded = btoa(JSON.stringify(paymentData));
-    const link = `${window.location.origin}/pay?data=${encoded}`;
+    const link = buildPaymentUrl(createPaymentLinkData(requestAmount, paymentDescription, code));
     setGeneratedLink(link);
     return link;
   };
@@ -115,7 +117,7 @@ const ReceivePage = () => {
     toast({ title: "QR Code Ready", description: "Share this QR code for payment" });
   };
 
-  const paymentUrl = generatedLink || (requestAmount ? (() => { const d = { amount: requestAmount, description: paymentDescription, id: `PAY-${Date.now()}` }; return `${window.location.origin}/pay?data=${btoa(JSON.stringify(d))}`; })() : `${window.location.origin}/pay`);
+  const paymentUrl = generatedLink || buildPaymentUrl(createPaymentLinkData(requestAmount, paymentDescription, code));
 
   const renderResult = (result: Record<string, unknown> | null) => {
     if (!result) return null;
@@ -144,7 +146,7 @@ const ReceivePage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         <div className="lg:col-span-2">
-          <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
             {receiveMethods.map(m => {
               const Icon = m.icon;
               return (
@@ -206,6 +208,25 @@ const ReceivePage = () => {
                 <div><label className="text-xs text-muted-foreground mb-1.5 block">description</label><input value={depositDescription} onChange={e => setDepositDescription(e.target.value)} placeholder="e.g. Payment for services" className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" /></div>
                 <button onClick={() => setShowDepositModal(true)} disabled={!depositMsisdn || !depositAmount} className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-60"><Smartphone size={16} /> Request Payment</button>
               </div>
+            </div>
+          )}
+
+          {activeTab === "bank" && (
+            <div className="glass rounded-2xl p-6">
+              <div className="mb-5">
+                <h3 className="text-sm font-semibold text-foreground">Receive with Bank Transfer</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Select an available Relworx bank product and use its required fields.</p>
+              </div>
+              <BankTransferFlow requestCurrency={code} description={paymentDescription || "Bank payment"} />
+            </div>
+          )}
+
+          {activeTab === "card" && (
+            <div className="glass rounded-2xl p-8 text-center">
+              <div className="stat-card-green mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-primary-foreground"><CreditCard size={28} /></div>
+              <h3 className="text-lg font-semibold text-foreground">Card payments are coming soon</h3>
+              <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">Card payments will be available after the secure card connection is completed.</p>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs font-medium text-accent-foreground"><Clock3 size={14} /> Temporarily unavailable</div>
             </div>
           )}
         </div>

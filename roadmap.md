@@ -7,3 +7,6 @@
 - [x] Add the new photos to their business cards with the poster-edge curve
 - [x] Turn the countries section into a single sliding flag strip with no card text
 - [x] Replace FinFlow with the professional LIVRA image logo across the website
+- [x] Add Mobile Money, Bank Transfer, and unavailable Card options to Receive
+- [x] Carry the creator's main currency into payment links and QR codes
+- [x] Add payment-method selection to the public payment page
