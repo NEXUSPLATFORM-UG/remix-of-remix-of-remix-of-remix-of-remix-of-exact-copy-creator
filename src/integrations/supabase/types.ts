@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          business_name: string
+          business_type: string
+          country: string
+          created_at: string
+          document_paths: string[]
+          id: string
+          location: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          business_name: string
+          business_type: string
+          country: string
+          created_at?: string
+          document_paths?: string[]
+          id?: string
+          location: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          business_name?: string
+          business_type?: string
+          country?: string
+          created_at?: string
+          document_paths?: string[]
+          id?: string
+          location?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
