@@ -188,3 +188,14 @@
     animation: none;
   }
 }
+
+/* Banner-style photo shape: square-ish outer corners, one deep sweeping curve
+   replacing the inner corner (as on posters and hero banners). Sized for the
+   112x80 (h-20 w-28) business card thumbnails. */
+.photo-curve {
+  clip-path: path("M12 0 H100 Q112 0 112 12 V68 Q112 80 100 80 H50 Q0 80 0 28 V12 Q0 0 12 0 Z");
+}
+
+.photo-curve-frame {
+  filter: drop-shadow(0 8px 18px hsl(214 55% 55% / 0.25));
+}
