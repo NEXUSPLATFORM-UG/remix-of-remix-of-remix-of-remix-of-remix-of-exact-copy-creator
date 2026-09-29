@@ -176,6 +176,24 @@
     background: hsl(0 0% 0% / 0.1);
     border-radius: 100px;
   }
+
+  /* Continuous horizontal strip: two identical copies side by side, slid left
+     by exactly half so the loop is seamless. */
+  .flag-marquee {
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+
+  .flag-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: flag-marquee 32s linear infinite;
+  }
+
+  .flag-marquee:hover .flag-marquee-track,
+  .flag-marquee:focus-within .flag-marquee-track {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes payment-visual-float {
@@ -183,9 +201,20 @@
   50% { transform: translateY(-10px); }
 }
 
+@keyframes flag-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .payment-visual-float {
     animation: none;
+  }
+  .flag-marquee-track {
+    animation: none;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 

@@ -49,6 +49,16 @@ const steps = [
   { n: "04", title: "Receive, send, save, exchange, transfer", text: "Do everything with your funded wallet — all in one place." },
 ];
 
+const countries = [
+  { flag: flagUg, name: "Uganda" },
+  { flag: flagKe, name: "Kenya" },
+  { flag: flagTz, name: "Tanzania" },
+  { flag: flagRw, name: "Rwanda" },
+  { flag: flagNg, name: "Nigeria" },
+  { flag: flagGh, name: "Ghana" },
+  { flag: flagZa, name: "South Africa" },
+];
+
 const LandingPage = () => (
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
@@ -242,46 +252,31 @@ const LandingPage = () => (
     </section>
 
     {/* Available countries */}
-    <section id="countries" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="max-w-2xl mx-auto text-center mb-12">
+    <section id="countries" className="w-full py-20">
+      <div className="mx-auto mb-10 max-w-2xl px-6 text-center">
         <p className="mb-3 text-sm font-medium text-primary">Available countries</p>
         <h2 className="text-4xl font-bold tracking-tight">Live in seven countries, growing fast.</h2>
-        <p className="mt-4 text-muted-foreground">Move money across East and West Africa with more countries joining soon.</p>
       </div>
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4">
-        {[
-          { flag: flagUg, name: "Uganda", currency: "UGX", note: "MTN & Airtel Mobile Money" },
-          { flag: flagKe, name: "Kenya", currency: "KES", note: "M-Pesa & bank transfers" },
-          { flag: flagTz, name: "Tanzania", currency: "TZS", note: "Mobile Money & banks" },
-          { flag: flagRw, name: "Rwanda", currency: "RWF", note: "MoMo & bank transfers" },
-          { flag: flagNg, name: "Nigeria", currency: "NGN", note: "Bank transfers & cards" },
-          { flag: flagGh, name: "Ghana", currency: "GHS", note: "Mobile Money & banks" },
-          { flag: flagZa, name: "South Africa", currency: "ZAR", note: "Cards & EFT transfers" },
-        ].map(({ flag, name, currency, note }) => (
-          <div key={name} className="milk-card group relative overflow-hidden rounded-2xl p-5 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
-            <div className="mb-4 h-24 w-full overflow-hidden rounded-xl border border-border/30 shadow-sm">
-              <img
-                src={flag}
-                alt={`${name} flag`}
-                loading="lazy"
-                width={320}
-                height={180}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold">{name}</h3>
-              <span className="rounded-full bg-accent/70 px-2.5 py-0.5 text-xs font-medium text-primary">{currency}</span>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">{note}</p>
-          </div>
-        ))}
-        <div className="milk-card group relative flex flex-col items-center justify-center rounded-2xl p-5 text-center">
-          <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15">
-            <Globe size={22} className="text-primary" />
-          </span>
-          <h3 className="text-base font-semibold">More coming soon</h3>
-          <p className="mt-1 text-sm text-muted-foreground">New countries added every month.</p>
+      <div className="flag-marquee w-full overflow-hidden">
+        <div className="flag-marquee-track gap-6 pr-6">
+          {[...countries, ...countries, ...countries, ...countries].map(
+            ({ flag, name }, index) => (
+              <div
+                key={`${name}-${index}`}
+                aria-hidden={index >= countries.length * 2}
+                className="milk-card h-20 w-32 shrink-0 overflow-hidden rounded-2xl p-1.5"
+              >
+                <img
+                  src={flag}
+                  alt={index < countries.length ? `${name} flag` : ""}
+                  loading="lazy"
+                  width={128}
+                  height={72}
+                  className="h-full w-full rounded-xl object-cover"
+                />
+              </div>
+            )
+          )}
         </div>
       </div>
     </section>

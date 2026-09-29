@@ -5,3 +5,4 @@
 - [x] Spread the milky card grid full width with the globe behind it
 - [x] Create realistic petrol station, restaurant, and clinic payment photos
 - [x] Add the new photos to their business cards with the poster-edge curve
+- [x] Turn the countries section into a single sliding flag strip with no card text
