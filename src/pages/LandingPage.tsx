@@ -87,12 +87,12 @@ const LandingPage = () => {
         <Link to="/" aria-label="LIVRA home" className="flex items-center">
           <BrandLogo eager className="h-8 w-auto" />
         </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition-colors">Products</a>
-          <a href="#business" className="hover:text-foreground transition-colors">Company</a>
-          <a href="#countries" className="hover:text-foreground transition-colors">Availability</a>
-          <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-          <a href="#support" className="hover:text-foreground transition-colors">Support</a>
+        <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-lg font-semibold tracking-tight text-foreground">
+          <a href="#features" className="transition-colors hover:text-primary">Products</a>
+          <a href="#business" className="transition-colors hover:text-primary">Company</a>
+          <a href="#countries" className="transition-colors hover:text-primary">Availability</a>
+          <a href="#pricing" className="transition-colors hover:text-primary">Pricing</a>
+          <a href="#support" className="transition-colors hover:text-primary">Support</a>
         </nav>
         <div className="flex items-center gap-2">
           <button onClick={() => openAuth("login")} className="px-4 py-2 text-sm rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
