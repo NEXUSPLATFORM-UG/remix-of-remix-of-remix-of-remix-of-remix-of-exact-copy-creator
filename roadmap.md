@@ -3,3 +3,5 @@
 - [x] Refine the method grid into a soft transparent liquid-glass design
 - [x] Remove the outlined section holder and reduce its height
 - [x] Spread the milky card grid full width with the globe behind it
+- [x] Create realistic petrol station, restaurant, and clinic payment photos
+- [x] Add the new photos to their business cards with the poster-edge curve
