@@ -210,12 +210,14 @@ const LandingPage = () => (
         ].map(({ i: I, title, text, photo }) => (
           <div key={title} className="milk-card group relative rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
             {photo && (
-              <img
-                src={photo}
-                alt={title}
-                loading="lazy"
-                className="absolute right-4 top-4 h-20 w-28 rounded-3xl object-cover shadow-[var(--glass-shadow)] ring-4 ring-background/60 transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
-              />
+              <div className="photo-curve-frame absolute right-4 top-4 h-20 w-28 transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none">
+                <img
+                  src={photo}
+                  alt={title}
+                  loading="lazy"
+                  className="photo-curve h-full w-full object-cover"
+                />
+              </div>
             )}
             <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-accent/70 shadow-[var(--glass-shadow)]">
               <I size={24} className="text-primary" strokeWidth={2.2} />
