@@ -10,12 +10,12 @@ const SiteHeader = () => {
   const [authMode, setAuthMode] = useState<AuthMode>("register");
   const openAuth = (m: AuthMode) => { setAuthMode(m); setAuthOpen(true); };
 
-  const Drop = ({ label, width, children }: { label: string; width: string; children: React.ReactNode }) => (
+  const Drop = ({ label, width, pos = "left-1/2 -translate-x-1/2", children }: { label: string; width: string; pos?: string; children: React.ReactNode }) => (
     <div className="group relative">
       <button className="flex items-center gap-1 whitespace-nowrap transition-colors hover:text-primary group-hover:text-primary">
         {label} <ChevronDown size={18} className="transition-transform group-hover:rotate-180" />
       </button>
-      <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-5 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+      <div className={`invisible absolute ${pos} top-full z-50 pt-5 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100`}>
         <div className={`milk-card rounded-2xl bg-background/95 p-6 shadow-2xl backdrop-blur-xl ${width}`}>{children}</div>
       </div>
     </div>
@@ -37,7 +37,7 @@ const SiteHeader = () => {
         <div className="w-full px-6 lg:px-12 xl:px-20 h-20 flex items-center justify-between">
           <Link to="/" aria-label="LIVRA home" className="flex items-center"><BrandLogo eager className="h-8 w-auto" /></Link>
           <nav className="hidden md:flex shrink-0 items-center gap-6 xl:gap-9 text-lg font-semibold tracking-tight text-foreground">
-            <Drop label="Products" width="w-[880px]">
+            <Drop label="Products" width="w-[880px]" pos="-left-52">
               <div className="grid grid-cols-3 gap-1">
                 {products.map((p) => <Item key={p.slug} to={`/products/${p.slug}`} icon={p.icon} title={p.title} short={p.short} />)}
               </div>
