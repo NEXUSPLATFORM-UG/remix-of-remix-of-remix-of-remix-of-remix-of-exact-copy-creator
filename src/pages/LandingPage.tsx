@@ -4,6 +4,7 @@ import AuthModal, { AuthMode, goAfterAuth } from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
 import BrandLogo from "@/components/BrandLogo";
+import SiteHeader from "@/components/SiteHeader";
 import featureVisual from "@/assets/features-visual.png";
 import bankTransferVisual from "@/assets/bank-transfer-3d.png";
 import cardPaymentVisual from "@/assets/card-payment-3d.png";
@@ -82,26 +83,7 @@ const LandingPage = () => {
   return (
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
-    <header className="sticky top-0 z-40 glass border-b border-border/40">
-      <div className="w-full px-6 lg:px-12 xl:px-20 h-20 flex items-center justify-between">
-        <Link to="/" aria-label="LIVRA home" className="flex items-center">
-          <BrandLogo eager className="h-8 w-auto" />
-        </Link>
-        <nav className="hidden md:flex shrink-0 items-center gap-6 xl:gap-9 text-lg font-semibold tracking-tight text-foreground">
-          <a href="#features" className="whitespace-nowrap transition-colors hover:text-primary">Products</a>
-          <a href="#business" className="whitespace-nowrap transition-colors hover:text-primary">Company</a>
-          <a href="#countries" className="whitespace-nowrap transition-colors hover:text-primary">Availability</a>
-          <a href="#pricing" className="whitespace-nowrap transition-colors hover:text-primary">Pricing</a>
-          <a href="#support" className="whitespace-nowrap transition-colors hover:text-primary">Support</a>
-        </nav>
-        <div className="flex shrink-0 items-center gap-2 xl:gap-3">
-          <button onClick={() => openAuth("login")} className="px-4 py-2 text-base rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
-          <button onClick={() => openAuth("register")} className="px-5 py-2.5 text-base rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
-            Get started
-          </button>
-        </div>
-      </div>
-    </header>
+    <SiteHeader />
 
     {/* Hero */}
     <section className="relative isolate w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 min-h-[calc(100vh-5rem)] grid lg:grid-cols-2 gap-14 items-center">
@@ -140,7 +122,7 @@ const LandingPage = () => {
     {/* Stats */}
     <section className="w-full px-6 lg:px-12 xl:px-20 pb-20">
       <div className="glass rounded-3xl grid grid-cols-2 md:grid-cols-4 divide-x divide-border/40">
-        {[["50K+", "Active users"], ["UGX 12B+", "Processed"], ["99.9%", "Uptime"], ["< 10s", "Avg. transfer"]].map(([v, l]) => (
+        {[["50K+", "Active users"], ["$5 Trillion+", "Processed"], ["99.9%", "Uptime"], ["< 10s", "Avg. transfer"]].map(([v, l]) => (
           <div key={l} className="p-6 text-center">
             <p className="text-3xl font-bold tracking-tight">{v}</p>
             <p className="text-sm text-muted-foreground mt-1">{l}</p>
