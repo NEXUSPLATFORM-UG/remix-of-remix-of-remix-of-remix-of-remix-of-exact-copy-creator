@@ -16,7 +16,7 @@ const SiteHeader = () => {
         {label} <ChevronDown size={18} className="transition-transform group-hover:rotate-180" />
       </button>
       <div className={`invisible absolute ${pos} top-full z-50 pt-5 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100`}>
-        <div className={`milk-card rounded-2xl bg-background/95 p-6 shadow-2xl backdrop-blur-xl ${width}`}>{children}</div>
+        <div className={`rounded-2xl border border-border/60 bg-background p-6 shadow-2xl ${width}`}>{children}</div>
       </div>
     </div>
   );
