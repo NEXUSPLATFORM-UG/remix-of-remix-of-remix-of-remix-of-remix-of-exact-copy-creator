@@ -49,6 +49,7 @@ const SiteHeader = () => {
             </Drop>
             <Link to="/availability" className="whitespace-nowrap transition-colors hover:text-primary">Availability</Link>
             <Link to="/pricing" className="whitespace-nowrap transition-colors hover:text-primary">Pricing</Link>
+            <Link to="/developers" className="whitespace-nowrap transition-colors hover:text-primary">Developer</Link>
             <Link to="/support" className="whitespace-nowrap transition-colors hover:text-primary">Support</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-2 xl:gap-3">

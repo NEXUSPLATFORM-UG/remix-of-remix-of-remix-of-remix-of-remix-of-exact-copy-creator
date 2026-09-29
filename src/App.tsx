@@ -26,6 +26,7 @@ import CompanyPage from "./pages/CompanyPage";
 import AvailabilityPage from "./pages/AvailabilityPage";
 import PricingPage from "./pages/PricingPage";
 import SupportPage from "./pages/SupportPage";
+import DeveloperDocsPage from "./pages/DeveloperDocsPage";
 
 const queryClient = new QueryClient();
 
