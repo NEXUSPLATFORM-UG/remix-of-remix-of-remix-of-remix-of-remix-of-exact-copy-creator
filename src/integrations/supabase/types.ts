@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          work_date: string
+          worker_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          work_date: string
+          worker_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          work_date?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_members: {
+        Row: {
+          business_id: string
+          created_at: string
+          email: string
+          id: string
+          role: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          email: string
+          id?: string
+          role?: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          role?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_members_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           business_name: string
@@ -53,6 +130,63 @@ export type Database = {
         }
         Relationships: []
       }
+      payroll_payments: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string
+          days: number
+          id: string
+          method: string
+          period_end: string
+          period_start: string
+          reference: string | null
+          status: string
+          worker_id: string
+        }
+        Insert: {
+          amount?: number
+          business_id: string
+          created_at?: string
+          days?: number
+          id?: string
+          method: string
+          period_end: string
+          period_start: string
+          reference?: string | null
+          status?: string
+          worker_id: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string
+          days?: number
+          id?: string
+          method?: string
+          period_end?: string
+          period_start?: string
+          reference?: string | null
+          status?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_payments_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -80,12 +214,63 @@ export type Database = {
         }
         Relationships: []
       }
+      workers: {
+        Row: {
+          active: boolean
+          bank_account: string | null
+          bank_name: string | null
+          bank_product_code: string | null
+          business_id: string
+          created_at: string
+          daily_rate: number
+          full_name: string
+          id: string
+          payout_method: string
+          phone: string
+        }
+        Insert: {
+          active?: boolean
+          bank_account?: string | null
+          bank_name?: string | null
+          bank_product_code?: string | null
+          business_id: string
+          created_at?: string
+          daily_rate?: number
+          full_name: string
+          id?: string
+          payout_method?: string
+          phone: string
+        }
+        Update: {
+          active?: boolean
+          bank_account?: string | null
+          bank_name?: string | null
+          bank_product_code?: string | null
+          business_id?: string
+          created_at?: string
+          daily_rate?: number
+          full_name?: string
+          id?: string
+          payout_method?: string
+          phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_manage_business: { Args: { _business_id: string }; Returns: boolean }
+      is_business_owner: { Args: { _business_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
