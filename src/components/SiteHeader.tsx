@@ -16,16 +16,16 @@ const SiteHeader = () => {
         {label} <ChevronDown size={18} className="transition-transform group-hover:rotate-180" />
       </button>
       <div className={`invisible absolute ${pos} top-full z-50 pt-5 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100`}>
-        <div className={`rounded-2xl border border-border/60 bg-background p-6 shadow-2xl ${width}`}>{children}</div>
+        <div className={`rounded-2xl bg-background p-6 shadow-[0_18px_45px_-12px_hsl(var(--primary)/0.18)] ${width}`}>{children}</div>
       </div>
     </div>
   );
 
   const Item = ({ to, icon: I, title, short }: { to: string; icon: any; title: string; short: string }) => (
-    <Link to={to} className="flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-accent/60">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><I size={20} /></span>
+    <Link to={to} className="group/item flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-primary/10">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover/item:bg-primary group-hover/item:text-primary-foreground"><I size={20} /></span>
       <span>
-        <span className="block text-base font-semibold text-foreground">{title}</span>
+        <span className="block text-base font-semibold text-foreground transition-colors group-hover/item:text-primary">{title}</span>
         <span className="block text-sm font-normal text-muted-foreground">{short}</span>
       </span>
     </Link>
