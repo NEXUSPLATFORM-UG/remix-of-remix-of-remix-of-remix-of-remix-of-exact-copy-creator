@@ -113,7 +113,7 @@ const AuthModal = ({ open, mode, onModeChange, onOpenChange }: Props) => {
             </div>
             <div>
               <DialogTitle className="text-2xl font-bold">{mode === "login" ? "Welcome back" : "Create your account"}</DialogTitle>
-              <DialogDescription>{mode === "login" ? "Log in to your FinFlow wallet." : "Start moving money in minutes."}</DialogDescription>
+              <DialogDescription>{mode === "login" ? "Log in to your LIVRA wallet." : "Start moving money in minutes."}</DialogDescription>
             </div>
             <button type="button" onClick={google} className="w-full h-11 rounded-xl border border-border bg-background/70 flex items-center justify-center gap-2 text-sm font-medium hover:bg-muted/50 transition-colors">
               <GoogleIcon /> Continue with Google

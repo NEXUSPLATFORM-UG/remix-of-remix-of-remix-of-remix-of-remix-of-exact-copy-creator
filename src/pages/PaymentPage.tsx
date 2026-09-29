@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Smartphone, Loader2, CheckCircle, AlertCircle, ArrowDownToLine } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import BrandLogo from "@/components/BrandLogo";
 
 const API_BASE = "https://api.livrauganda.workers.dev/api";
 
@@ -57,10 +58,11 @@ const PaymentPage = () => {
       <div className="w-full max-w-md">
         <div className="glass-heavy rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-6">
+            <BrandLogo className="mx-auto mb-5 h-8 w-auto" eager />
             <div className="w-16 h-16 rounded-2xl stat-card-blue flex items-center justify-center text-primary-foreground mx-auto mb-4">
               <ArrowDownToLine size={28} />
             </div>
-            <h1 className="text-xl font-bold text-foreground">Livra Payment</h1>
+            <h1 className="text-xl font-bold text-foreground">Payment</h1>
             {paymentData.description && <p className="text-sm text-muted-foreground mt-1">{paymentData.description}</p>}
             {paymentData.amount && <p className="text-3xl font-bold text-foreground mt-2">UGX {parseFloat(paymentData.amount).toLocaleString()}</p>}
           </div>
@@ -105,7 +107,9 @@ const PaymentPage = () => {
             </div>
           )}
         </div>
-        <p className="text-xs text-muted-foreground text-center mt-4">Powered by Livra</p>
+        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <span>Powered by</span><BrandLogo className="h-4 w-auto" />
+        </div>
       </div>
     </div>
   );

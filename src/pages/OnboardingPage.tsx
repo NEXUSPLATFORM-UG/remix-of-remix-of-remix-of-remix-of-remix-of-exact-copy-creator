@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Loader2, UploadCloud, FileText, X, CheckCircle2 } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 const businessTypes: Record<string, string[]> = {
   Uganda: ["Sole Proprietorship", "Partnership", "Private Limited Company (Ltd)", "Public Limited Company (PLC)", "Company Limited by Guarantee", "NGO", "SACCO / Cooperative"],
@@ -95,8 +96,8 @@ const OnboardingPage = () => {
   return (
     <div className="min-h-screen liquid-gradient-bg text-foreground flex flex-col">
       <header className="w-full px-6 lg:px-12 h-16 flex items-center">
-        <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg">
-          <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">F</span>FinFlow
+        <Link to="/" aria-label="LIVRA home" className="flex items-center">
+          <BrandLogo eager className="h-8 w-auto" />
         </Link>
       </header>
       <main className="flex-1 flex items-center justify-center px-4 py-10">
