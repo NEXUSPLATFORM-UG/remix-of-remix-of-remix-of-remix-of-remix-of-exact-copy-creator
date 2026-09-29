@@ -104,7 +104,7 @@ const LandingPage = () => {
     </header>
 
     {/* Hero */}
-    <section className="relative isolate w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 min-h-[calc(100vh-4rem)] grid lg:grid-cols-2 gap-14 items-center">
+    <section className="relative isolate w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 min-h-[calc(100vh-5rem)] grid lg:grid-cols-2 gap-14 items-center">
       <div className="absolute inset-0 -z-10"><MoneyFlowBackground /></div>
       <div>
         <span className="inline-flex items-center gap-2 glass px-3 py-1 rounded-full text-xs text-muted-foreground mb-6">
