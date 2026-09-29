@@ -23,6 +23,7 @@ export type Database = {
           document_paths: string[]
           id: string
           location: string
+          main_currency: string
           status: string
           user_id: string
         }
@@ -34,6 +35,7 @@ export type Database = {
           document_paths?: string[]
           id?: string
           location: string
+          main_currency?: string
           status?: string
           user_id: string
         }
@@ -45,6 +47,7 @@ export type Database = {
           document_paths?: string[]
           id?: string
           location?: string
+          main_currency?: string
           status?: string
           user_id?: string
         }
