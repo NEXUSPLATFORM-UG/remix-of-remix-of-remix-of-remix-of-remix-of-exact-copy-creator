@@ -214,7 +214,7 @@ const LandingPage = () => (
                 src={photo}
                 alt={title}
                 loading="lazy"
-                className="absolute right-4 top-4 h-16 w-16 rounded-full object-cover shadow-[var(--glass-shadow)] ring-4 ring-background/60 transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
+                className="absolute right-4 top-4 h-20 w-28 rounded-3xl object-cover shadow-[var(--glass-shadow)] ring-4 ring-background/60 transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
               />
             )}
             <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-accent/70 shadow-[var(--glass-shadow)]">
