@@ -29,7 +29,7 @@ const schema = z.object({
 const OnboardingPage = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
-  const [form, setForm] = useState({ country: "", businessType: "", businessName: "", location: "" });
+  const [form, setForm] = useState({ country: "", businessType: "", currency: "", businessName: "", location: "" });
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -38,6 +38,7 @@ const OnboardingPage = () => {
   const stepsList = [
     { key: "country", title: "Where is your business?", hint: "Choose the country your business is registered in." },
     { key: "businessType", title: "What type of business?", hint: "Types available for your country." },
+    { key: "currency", title: "Choose your main currency", hint: "Your dashboard balances and totals will show in this currency." },
     { key: "businessName", title: "What's your business called?", hint: "Use the registered name." },
     { key: "location", title: "Where are you located?", hint: "City and street or plot." },
     { key: "documents", title: "Upload business documents", hint: "We use these to verify your business." },
