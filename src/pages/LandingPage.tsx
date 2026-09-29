@@ -25,7 +25,7 @@ import flagNg from "@/assets/countries/ng.png";
 import flagGh from "@/assets/countries/gh.png";
 import flagZa from "@/assets/countries/za.png";
 import {
-  ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
+  ArrowRight, Shield, QrCode, Globe, CheckCircle2,
   Store, Fuel, UtensilsCrossed, Stethoscope,
 } from "lucide-react";
 
