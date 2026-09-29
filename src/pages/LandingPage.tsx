@@ -10,6 +10,7 @@ import googlePayLogo from "@/assets/google-pay-3d.png";
 import applePayLogo from "@/assets/apple-pay-3d.png";
 import mtnMomoVisual from "@/assets/mtn-momo-local.png";
 import airtelMoneyVisual from "@/assets/airtel-money-local.png";
+import businessSupermarketPhoto from "@/assets/business-supermarket.jpg";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
   Store, Fuel, UtensilsCrossed, Stethoscope,
