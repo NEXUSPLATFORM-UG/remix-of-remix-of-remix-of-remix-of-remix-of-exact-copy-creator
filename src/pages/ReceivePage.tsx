@@ -30,6 +30,21 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 
 type ModalStep = "form" | "processing" | "polling" | "success" | "error";
 
+const ScanningQr = ({ value, compact = false }: { value: string; compact?: boolean }) => (
+  <div className={`qr-gradient-frame ${compact ? "h-36 w-36" : "h-56 w-56"}`}>
+    <div className="qr-code-surface">
+      <QRCodeSVG
+        value={value}
+        size={compact ? 120 : 200}
+        bgColor="transparent"
+        fgColor="currentColor"
+        className="h-full w-full text-foreground"
+      />
+      <span className="qr-scan-line" aria-hidden="true" />
+    </div>
+  </div>
+);
+
 const ReceivePage = () => {
   const { cx, symbol } = useMainCurrency();
   const [activeTab, setActiveTab] = useState<"qr" | "link" | "mobile">("qr");
@@ -146,9 +161,7 @@ const ReceivePage = () => {
 
           {activeTab === "qr" && (
             <div className="glass rounded-2xl p-6 text-center">
-              <div className="w-56 h-56 rounded-2xl glass-heavy flex items-center justify-center mx-auto mb-4 p-4">
-                <QRCodeSVG value={paymentUrl} size={200} bgColor="transparent" fgColor="currentColor" className="text-foreground" />
-              </div>
+              <div className="mb-4"><ScanningQr value={paymentUrl} /></div>
               <p className="text-sm font-medium text-foreground mb-1">Scan to pay</p>
               <p className="text-xs text-muted-foreground mb-4">Show this QR code to receive payment</p>
               <div className="space-y-3">
@@ -176,7 +189,7 @@ const ReceivePage = () => {
                     </div>
                     <div className="glass rounded-xl p-4 text-center">
                       <p className="text-xs text-muted-foreground mb-2">QR Code for this link</p>
-                      <div className="inline-block p-3 rounded-xl glass-heavy"><QRCodeSVG value={generatedLink} size={120} bgColor="transparent" fgColor="currentColor" className="text-foreground" /></div>
+                      <ScanningQr value={generatedLink} compact />
                     </div>
                   </div>
                 )}
