@@ -11,6 +11,9 @@ import applePayLogo from "@/assets/apple-pay-3d.png";
 import mtnMomoVisual from "@/assets/mtn-momo-local.png";
 import airtelMoneyVisual from "@/assets/airtel-money-local.png";
 import businessSupermarketPhoto from "@/assets/business-supermarket.jpg";
+import businessPetrolStationPhoto from "@/assets/business-petrol-station.jpg";
+import businessRestaurantPhoto from "@/assets/business-restaurant.jpg";
+import businessClinicPhoto from "@/assets/business-clinic.jpg";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
   Store, Fuel, UtensilsCrossed, Stethoscope,
@@ -204,9 +207,9 @@ const LandingPage = () => (
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {[
           { i: Store, title: "Supermarkets", text: "Ring up every till with instant Mobile Money and card payments at checkout.", photo: businessSupermarketPhoto },
-          { i: Fuel, title: "Petrol Stations", text: "Serve drivers fast with contactless payments, day and night." },
-          { i: UtensilsCrossed, title: "Restaurants", text: "Let diners pay their bill by MoMo, QR code or card in seconds." },
-          { i: Stethoscope, title: "Clinics", text: "Collect consultation and pharmacy payments without the queue." },
+            { i: Fuel, title: "Petrol Stations", text: "Serve drivers fast with contactless payments, day and night.", photo: businessPetrolStationPhoto },
+            { i: UtensilsCrossed, title: "Restaurants", text: "Let diners pay their bill by MoMo, QR code or card in seconds.", photo: businessRestaurantPhoto },
+            { i: Stethoscope, title: "Clinics", text: "Collect consultation and pharmacy payments without the queue.", photo: businessClinicPhoto },
         ].map(({ i: I, title, text, photo }) => (
           <div key={title} className="milk-card group relative rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
             {photo && (
@@ -215,6 +218,8 @@ const LandingPage = () => (
                   src={photo}
                   alt={title}
                   loading="lazy"
+                  width={1024}
+                  height={768}
                   className="photo-curve h-full w-full object-cover"
                 />
               </div>
