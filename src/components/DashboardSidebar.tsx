@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Wallet, Send, ArrowDownToLine, ArrowLeftRight,
   ArrowDownRight, Zap, RefreshCw, PiggyBank, Shield, Code2, BookOpen,
-  ChevronLeft, ChevronRight, Settings
+  ChevronLeft, ChevronRight, Settings, Users
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
@@ -18,6 +18,7 @@ const menuItems = [
   { icon: RefreshCw, label: "Convert", path: "/convert" },
   { icon: PiggyBank, label: "Saving", path: "/saving" },
   { icon: Shield, label: "Insurance", path: "/insurance" },
+  { icon: Users, label: "Payroll", path: "/payroll" },
   { icon: Code2, label: "Developer", path: "/developer" },
   { icon: BookOpen, label: "Documentation", path: "/documentation" },
   { icon: Settings, label: "Settings", path: "/settings" },

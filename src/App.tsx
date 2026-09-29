@@ -17,6 +17,7 @@ import InsurancePage from "./pages/InsurancePage";
 import DeveloperPage from "./pages/DeveloperPage";
 import DocumentationPage from "./pages/DocumentationPage";
 import SettingsPage from "./pages/SettingsPage";
+import PayrollPage from "./pages/PayrollPage";
 import PaymentPage from "./pages/PaymentPage";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/insurance" element={<InsurancePage />} />
             <Route path="/developer" element={<DeveloperPage />} />
             <Route path="/documentation" element={<DocumentationPage />} />
+            <Route path="/payroll" element={<PayrollPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="/onboarding" element={<OnboardingPage />} />
