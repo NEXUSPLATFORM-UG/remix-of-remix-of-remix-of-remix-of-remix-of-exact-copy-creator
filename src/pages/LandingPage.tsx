@@ -14,6 +14,13 @@ import businessSupermarketPhoto from "@/assets/business-supermarket.jpg";
 import businessPetrolStationPhoto from "@/assets/business-petrol-station.jpg";
 import businessRestaurantPhoto from "@/assets/business-restaurant.jpg";
 import businessClinicPhoto from "@/assets/business-clinic.jpg";
+import flagUg from "@/assets/countries/ug.png";
+import flagKe from "@/assets/countries/ke.png";
+import flagTz from "@/assets/countries/tz.png";
+import flagRw from "@/assets/countries/rw.png";
+import flagNg from "@/assets/countries/ng.png";
+import flagGh from "@/assets/countries/gh.png";
+import flagZa from "@/assets/countries/za.png";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
   Store, Fuel, UtensilsCrossed, Stethoscope,
