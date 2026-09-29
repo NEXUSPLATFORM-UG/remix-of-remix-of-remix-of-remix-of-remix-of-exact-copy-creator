@@ -1,4 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import AuthModal, { AuthMode, goAfterAuth } from "@/components/AuthModal";
+import { supabase } from "@/integrations/supabase/client";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
 import featureVisual from "@/assets/features-visual.png";
 import bankTransferVisual from "@/assets/bank-transfer-3d.png";
@@ -59,7 +62,23 @@ const countries = [
   { flag: flagZa, name: "South Africa" },
 ];
 
-const LandingPage = () => (
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>("register");
+  const openAuth = (m: AuthMode) => { setAuthMode(m); setAuthOpen(true); };
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" && sessionStorage.getItem("postAuth")) {
+        sessionStorage.removeItem("postAuth");
+        setTimeout(() => goAfterAuth(navigate), 0);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
+
+  return (
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
     <header className="sticky top-0 z-40 glass border-b border-border/40">
@@ -75,10 +94,10 @@ const LandingPage = () => (
           <Link to="/documentation" className="hover:text-foreground transition-colors">Developers</Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/dashboard" className="px-4 py-2 text-sm rounded-xl hover:bg-muted/50 transition-colors">Log in</Link>
-          <Link to="/dashboard" className="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
+          <button onClick={() => openAuth("login")} className="px-4 py-2 text-sm rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
+          <button onClick={() => openAuth("register")} className="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
             Get started
-          </Link>
+          </button>
         </div>
       </div>
     </header>
@@ -97,9 +116,9 @@ const LandingPage = () => (
           One wallet for Mobile Money, bank transfers, cards, bills and savings. Send, receive and get paid in seconds.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
+          <button onClick={() => openAuth("register")} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
             Open free account <ArrowRight size={16} />
-          </Link>
+          </button>
           <a href="#features" className="px-6 py-3 rounded-xl glass font-medium hover:bg-muted/40 transition-colors">
             Explore features
           </a>
@@ -252,6 +271,24 @@ const LandingPage = () => (
     </section>
 
     {/* Available countries */}
+    {/* Security */}
+    <section id="security" className="w-full px-6 lg:px-12 xl:px-20 py-20">
+      <div className="glass-heavy rounded-3xl p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <span className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-5"><Shield size={22} /></span>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Your money, protected.</h2>
+          <p className="text-muted-foreground">Encrypted end to end, monitored around the clock and backed by licensed payment partners.</p>
+        </div>
+        <ul className="space-y-4">
+          {["256-bit encryption on every transaction", "Two-factor sign in", "Real-time fraud monitoring", "Licensed payment partners"].map((t) => (
+            <li key={t} className="flex items-center gap-3 glass rounded-xl px-4 py-3 text-sm">
+              <CheckCircle2 size={18} className="text-primary shrink-0" />{t}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
     <section id="countries" className="w-full py-20">
       <div className="mx-auto mb-10 max-w-2xl px-6 text-center">
         <p className="mb-3 text-sm font-medium text-primary">Available countries</p>
@@ -281,47 +318,59 @@ const LandingPage = () => (
       </div>
     </section>
 
-    {/* Security */}
-    <section id="security" className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="glass-heavy rounded-3xl p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
-        <div>
-          <span className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-5"><Shield size={22} /></span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Your money, protected.</h2>
-          <p className="text-muted-foreground">Encrypted end to end, monitored around the clock and backed by licensed payment partners.</p>
-        </div>
-        <ul className="space-y-4">
-          {["256-bit encryption on every transaction", "Two-factor sign in", "Real-time fraud monitoring", "Licensed payment partners"].map((t) => (
-            <li key={t} className="flex items-center gap-3 glass rounded-xl px-4 py-3 text-sm">
-              <CheckCircle2 size={18} className="text-primary shrink-0" />{t}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-
     {/* CTA */}
     <section className="w-full px-6 lg:px-12 xl:px-20 py-20">
-      <div className="rounded-3xl bg-primary text-primary-foreground p-12 md:p-16 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Ready to move money smarter?</h2>
-        <p className="opacity-80 mb-8 max-w-xl mx-auto">Join thousands who send, receive and save with FinFlow every day.</p>
-        <Link to="/dashboard" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-background text-foreground font-medium hover:opacity-90 transition-opacity">
-          Create free account <ArrowRight size={16} />
-        </Link>
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-primary text-primary-foreground px-8 py-16 md:px-16 md:py-20 grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
+        <div className="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-primary-foreground/10 blur-2xl" aria-hidden />
+        <div className="absolute -left-20 -bottom-28 w-72 h-72 rounded-full bg-primary-foreground/10 blur-2xl" aria-hidden />
+        <div className="relative">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get started with FinFlow today</h2>
+          <p className="opacity-85 max-w-xl text-lg">Create your account, verify your business and start receiving payments in minutes.</p>
+        </div>
+        <div className="relative flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 lg:items-end xl:justify-end">
+          <button onClick={() => openAuth("register")} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-background text-foreground font-medium hover:opacity-90 transition-opacity">
+            Create free account <ArrowRight size={16} />
+          </button>
+          <button onClick={() => openAuth("login")} className="inline-flex items-center justify-center px-7 py-3.5 rounded-xl border border-primary-foreground/40 font-medium hover:bg-primary-foreground/10 transition-colors">
+            Log in
+          </button>
+        </div>
       </div>
     </section>
 
     {/* Footer */}
-    <footer className="border-t border-border/40">
-      <div className="w-full px-6 lg:px-12 xl:px-20 py-10 flex flex-col md:flex-row justify-between gap-4 text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} FinFlow. All rights reserved.</p>
-        <div className="flex gap-6">
-          <a href="#features" className="hover:text-foreground">Features</a>
-          <Link to="/documentation" className="hover:text-foreground">Docs</Link>
-          <a href="#security" className="hover:text-foreground">Security</a>
+    <footer className="border-t border-border/40 bg-background/40">
+      <div className="w-full px-6 lg:px-12 xl:px-20 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-5">
+        <div className="lg:col-span-2">
+          <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg mb-4">
+            <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">F</span>FinFlow
+          </Link>
+          <p className="text-sm text-muted-foreground max-w-sm">One wallet for Mobile Money, bank transfers, cards, bills and savings across Africa.</p>
+        </div>
+        {[
+          { h: "Product", l: [["Features", "#features"], ["How it works", "#how"], ["Businesses", "#business"], ["Countries", "#countries"]] },
+          { h: "Company", l: [["Security", "#security"], ["Developers", "/documentation"], ["Contact", "#"]] },
+          { h: "Legal", l: [["Privacy policy", "#"], ["Terms of service", "#"], ["Compliance", "#"]] },
+        ].map((c) => (
+          <div key={c.h}>
+            <p className="font-semibold mb-4 text-sm">{c.h}</p>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              {c.l.map(([t, h]) => <li key={t}><a href={h} className="hover:text-foreground transition-colors">{t}</a></li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-border/40">
+        <div className="w-full px-6 lg:px-12 xl:px-20 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} FinFlow. All rights reserved.</p>
+          <p>Payments powered by licensed partners.</p>
         </div>
       </div>
     </footer>
+
+    <AuthModal open={authOpen} mode={authMode} onModeChange={setAuthMode} onOpenChange={setAuthOpen} />
   </div>
-);
+  );
+};
 
 export default LandingPage;
