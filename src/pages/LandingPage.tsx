@@ -83,20 +83,20 @@ const LandingPage = () => {
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
     <header className="sticky top-0 z-40 glass border-b border-border/40">
-      <div className="w-full px-6 lg:px-12 xl:px-20 h-16 flex items-center justify-between">
+      <div className="w-full px-6 lg:px-12 xl:px-20 h-20 flex items-center justify-between">
         <Link to="/" aria-label="LIVRA home" className="flex items-center">
           <BrandLogo eager className="h-8 w-auto" />
         </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition-colors">Products</a>
-          <a href="#business" className="hover:text-foreground transition-colors">Company</a>
-          <a href="#countries" className="hover:text-foreground transition-colors">Availability</a>
-          <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-          <a href="#support" className="hover:text-foreground transition-colors">Support</a>
+        <nav className="hidden md:flex shrink-0 items-center gap-6 xl:gap-9 text-lg font-semibold tracking-tight text-foreground">
+          <a href="#features" className="whitespace-nowrap transition-colors hover:text-primary">Products</a>
+          <a href="#business" className="whitespace-nowrap transition-colors hover:text-primary">Company</a>
+          <a href="#countries" className="whitespace-nowrap transition-colors hover:text-primary">Availability</a>
+          <a href="#pricing" className="whitespace-nowrap transition-colors hover:text-primary">Pricing</a>
+          <a href="#support" className="whitespace-nowrap transition-colors hover:text-primary">Support</a>
         </nav>
-        <div className="flex items-center gap-2">
-          <button onClick={() => openAuth("login")} className="px-4 py-2 text-sm rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
-          <button onClick={() => openAuth("register")} className="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
+        <div className="flex shrink-0 items-center gap-2 xl:gap-3">
+          <button onClick={() => openAuth("login")} className="px-4 py-2 text-base rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
+          <button onClick={() => openAuth("register")} className="px-5 py-2.5 text-base rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
             Get started
           </button>
         </div>
@@ -104,7 +104,7 @@ const LandingPage = () => {
     </header>
 
     {/* Hero */}
-    <section className="relative isolate w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 min-h-[calc(100vh-4rem)] grid lg:grid-cols-2 gap-14 items-center">
+    <section className="relative isolate w-full px-6 lg:px-12 xl:px-20 pt-20 pb-24 min-h-[calc(100vh-5rem)] grid lg:grid-cols-2 gap-14 items-center">
       <div className="absolute inset-0 -z-10"><MoneyFlowBackground /></div>
       <div>
         <span className="inline-flex items-center gap-2 glass px-3 py-1 rounded-full text-xs text-muted-foreground mb-6">
