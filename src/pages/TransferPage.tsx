@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { ArrowLeftRight, ArrowDown, Building2, Users, Smartphone, PiggyBank, TrendingUp, Clock, X, ArrowUpRight, Loader2, CheckCircle, AlertCircle, ChevronRight, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
@@ -76,6 +77,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 );
 
 const TransferPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [activeMethod, setActiveMethod] = useState("bank");
   const [amount, setAmount] = useState("");
   const [showTransferModal, setShowTransferModal] = useState(false);
@@ -228,10 +230,10 @@ const TransferPage = () => {
       <PageHeader title="Transfer" subtitle="Move funds between accounts & services" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCardSmall icon={<ArrowLeftRight size={18} />} label="Total Transferred" value="$18,320" gradient="stat-card-blue" />
-        <StatCardSmall icon={<Building2 size={18} />} label="To Banks" value="$8,500" gradient="stat-card-cyan" />
-        <StatCardSmall icon={<Smartphone size={18} />} label="Mobile Money" value="$3,200" gradient="stat-card-orange" />
-        <StatCardSmall icon={<PiggyBank size={18} />} label="To Savings" value="UGX 6,620" gradient="stat-card-purple" />
+        <StatCardSmall icon={<ArrowLeftRight size={18} />} label="Total Transferred" value={cx("$18,320")} gradient="stat-card-blue" />
+        <StatCardSmall icon={<Building2 size={18} />} label="To Banks" value={cx("$8,500")} gradient="stat-card-cyan" />
+        <StatCardSmall icon={<Smartphone size={18} />} label="Mobile Money" value={cx("$3,200")} gradient="stat-card-orange" />
+        <StatCardSmall icon={<PiggyBank size={18} />} label="To Savings" value={cx("UGX 6,620")} gradient="stat-card-purple" />
       </div>
 
       <div className="glass rounded-2xl p-5 mb-5">
@@ -372,7 +374,7 @@ const TransferPage = () => {
                 <div>
                   <label className="text-xs text-muted-foreground mb-1.5 block">From</label>
                   <select className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 appearance-none">
-                    {accounts.map(a => <option key={a.name}>{a.name} — {a.balance}</option>)}
+                    {accounts.map(a => <option key={a.name}>{a.name} — {cx(a.balance)}</option>)}
                   </select>
                 </div>
 
@@ -405,7 +407,7 @@ const TransferPage = () => {
 
                 <div>
                   <label className="text-xs text-muted-foreground mb-1.5 block">Amount</label>
-                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="$0.00"
+                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={`${symbol}0.00`}
                     className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
                 </div>
 
@@ -441,7 +443,7 @@ const TransferPage = () => {
               {accounts.map(a => (
                 <div key={a.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                   <span className="text-sm text-foreground">{a.name}</span>
-                  <span className="text-sm font-semibold text-foreground">{a.balance}</span>
+                  <span className="text-sm font-semibold text-foreground">{cx(a.balance)}</span>
                 </div>
               ))}
             </div>
@@ -464,7 +466,7 @@ const TransferPage = () => {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-foreground">{tx.amount}</span>
+                <span className="text-sm font-semibold text-foreground">{cx(tx.amount)}</span>
                 <p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p>
               </div>
             </div>

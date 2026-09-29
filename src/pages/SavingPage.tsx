@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { PiggyBank, Plus, TrendingUp, Target, Users, Briefcase, Home, User, Lock, Unlock, X, Car, Heart, GraduationCap, Plane, Building2, FileText, Receipt, DollarSign } from "lucide-react";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
@@ -60,6 +61,7 @@ const goalIcons = [
 ];
 
 const SavingPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [selectedAccount, setSelectedAccount] = useState<AccountType | null>(null);
   const [goals, setGoals] = useState<Record<AccountType, Goal[]>>({
     individual: defaultIndividualGoals,
@@ -155,8 +157,8 @@ const SavingPage = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCardSmall icon={<PiggyBank size={18} />} label="Total Savings" value={`$${totalSavings.toLocaleString()}`} gradient="stat-card-green" />
-        <StatCardSmall icon={<Target size={18} />} label="Total Target" value={`$${totalTarget.toLocaleString()}`} gradient="stat-card-blue" />
+        <StatCardSmall icon={<PiggyBank size={18} />} label="Total Savings" value={`${symbol}${totalSavings.toLocaleString()}`} gradient="stat-card-green" />
+        <StatCardSmall icon={<Target size={18} />} label="Total Target" value={`${symbol}${totalTarget.toLocaleString()}`} gradient="stat-card-blue" />
         <StatCardSmall icon={<TrendingUp size={18} />} label="Progress" value={`${Math.round((totalSavings / totalTarget) * 100)}%`} gradient="stat-card-purple" />
         <StatCardSmall icon={<PiggyBank size={18} />} label="Active Goals" value={`${currentGoals.length}`} gradient="stat-card-orange" />
       </div>
@@ -166,8 +168,8 @@ const SavingPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{activeAccountInfo.label} Savings</p>
-            <p className="text-3xl font-bold text-foreground">${totalSavings.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">of ${totalTarget.toLocaleString()} target</p>
+            <p className="text-3xl font-bold text-foreground">{symbol}{totalSavings.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">of {symbol}{totalTarget.toLocaleString()} target</p>
           </div>
           <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
             <PiggyBank size={28} />
@@ -195,12 +197,12 @@ const SavingPage = () => {
             <div key={g.id} className="glass rounded-2xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground ${g.gradient}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground {symbol}{g.gradient}`}>
                     <Icon size={18} />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">{g.name}</p>
-                    <p className="text-xs text-muted-foreground">${g.current.toLocaleString()} of ${g.target.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">{symbol}{g.current.toLocaleString()} of {symbol}{g.target.toLocaleString()}</p>
                   </div>
                 </div>
                 <button onClick={() => toggleSavingType(g.id)}
@@ -212,7 +214,7 @@ const SavingPage = () => {
                 </button>
               </div>
               <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                <div className={`h-full rounded-full ${g.gradient}`} style={{ width: `${pct}%` }} />
+                <div className={`h-full rounded-full {symbol}{g.gradient}`} style={{ width: `${pct}%` }} />
               </div>
               <p className="text-xs text-muted-foreground text-right mt-1.5">{pct}%</p>
             </div>
@@ -236,7 +238,7 @@ const SavingPage = () => {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">Target Amount</label>
-                <input type="number" value={newGoalTarget} onChange={e => setNewGoalTarget(e.target.value)} placeholder="$0.00"
+                <input type="number" value={newGoalTarget} onChange={e => setNewGoalTarget(e.target.value)} placeholder={`${symbol}0.00`}
                   className="glass-input w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
               </div>
               <div>

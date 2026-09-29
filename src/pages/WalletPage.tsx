@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { Wallet, Eye, EyeOff, ArrowUpRight, ArrowDownLeft, CreditCard, Plus, DollarSign, Euro, PoundSterling, JapaneseYen, Trash2, TrendingUp, X, Smartphone, Building2 } from "lucide-react";
 import { useState } from "react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
@@ -47,6 +48,7 @@ const withdrawMethods = [
 ];
 
 const WalletPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [showBalance, setShowBalance] = useState(true);
   const [wallets, setWallets] = useState(defaultCurrencyWallets);
   const [cards, setCards] = useState(defaultCards);
@@ -105,7 +107,7 @@ const WalletPage = () => {
           <div>
             <p className="text-sm text-muted-foreground">Total Balance</p>
             <p className="text-3xl font-bold text-foreground">
-              {showBalance ? `$${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "••••••"}
+              {showBalance ? `${symbol}${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "••••••"}
             </p>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <TrendingUp size={12} className="text-chart-green" /> +5.3% from last month
@@ -193,7 +195,7 @@ const WalletPage = () => {
                 <p className="text-xs opacity-70">{card.name}</p>
                 <p className="text-[10px] opacity-50">Exp {card.expiry}</p>
               </div>
-              <p className="text-lg font-bold">{card.balance}</p>
+              <p className="text-lg font-bold">{cx(card.balance)}</p>
             </div>
           </div>
         ))}
@@ -202,9 +204,9 @@ const WalletPage = () => {
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <StatCardSmall icon={<Wallet size={18} />} label="Active Cards" value={`${cards.length}`} gradient="stat-card-blue" />
-        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value="+$4,580" gradient="stat-card-green" />
-        <StatCardSmall icon={<ArrowUpRight size={18} />} label="Spent" value="$1,245" gradient="stat-card-orange" />
-        <StatCardSmall icon={<ArrowDownLeft size={18} />} label="Received" value="$5,825" gradient="stat-card-cyan" />
+        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value={cx("+$4,580")} gradient="stat-card-green" />
+        <StatCardSmall icon={<ArrowUpRight size={18} />} label="Spent" value={cx("$1,245")} gradient="stat-card-orange" />
+        <StatCardSmall icon={<ArrowDownLeft size={18} />} label="Received" value={cx("$5,825")} gradient="stat-card-cyan" />
       </div>
 
       {/* Recent Transactions */}
@@ -223,7 +225,7 @@ const WalletPage = () => {
                 </div>
               </div>
               <span className={`text-sm font-semibold ${tx.type === "credit" ? "text-chart-green" : "text-foreground"}`}>
-                {tx.amount}
+                {cx(tx.amount)}
               </span>
             </div>
           ))}
@@ -267,7 +269,7 @@ const WalletPage = () => {
               <input type="number" placeholder="Enter amount" value={addAmount} onChange={e => setAddAmount(e.target.value)}
                 className="glass-input w-full px-4 py-3 rounded-xl text-2xl font-bold text-center text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30" />
               <div className="flex gap-2">
-                {["$50", "$100", "$500", "$1,000"].map(a => (
+                {["$50", "$100", "$500", "$1,000"].map(cx).map(a => (
                   <button key={a} onClick={() => setAddAmount(a.replace(/[$,]/g, ""))}
                     className="flex-1 glass-input py-2 rounded-xl text-xs font-medium text-foreground hover:bg-secondary hover:text-secondary-foreground transition-colors">{a}</button>
                 ))}
