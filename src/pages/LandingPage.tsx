@@ -49,6 +49,16 @@ const steps = [
   { n: "04", title: "Receive, send, save, exchange, transfer", text: "Do everything with your funded wallet — all in one place." },
 ];
 
+const countries = [
+  { flag: flagUg, name: "Uganda" },
+  { flag: flagKe, name: "Kenya" },
+  { flag: flagTz, name: "Tanzania" },
+  { flag: flagRw, name: "Rwanda" },
+  { flag: flagNg, name: "Nigeria" },
+  { flag: flagGh, name: "Ghana" },
+  { flag: flagZa, name: "South Africa" },
+];
+
 const LandingPage = () => (
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
