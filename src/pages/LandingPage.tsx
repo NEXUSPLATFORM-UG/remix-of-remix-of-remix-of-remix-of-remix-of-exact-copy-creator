@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import AuthModal, { AuthMode, goAfterAuth } from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
+import BrandLogo from "@/components/BrandLogo";
 import featureVisual from "@/assets/features-visual.png";
 import bankTransferVisual from "@/assets/bank-transfer-3d.png";
 import cardPaymentVisual from "@/assets/card-payment-3d.png";
@@ -83,9 +84,8 @@ const LandingPage = () => {
     {/* Nav */}
     <header className="sticky top-0 z-40 glass border-b border-border/40">
       <div className="w-full px-6 lg:px-12 xl:px-20 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg tracking-tight">
-          <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">F</span>
-          FinFlow
+        <Link to="/" aria-label="LIVRA home" className="flex items-center">
+          <BrandLogo eager className="h-8 w-auto" />
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="#features" className="hover:text-foreground transition-colors">Features</a>
@@ -201,7 +201,7 @@ const LandingPage = () => {
       <div className="max-w-2xl mx-auto text-center mb-12">
         <p className="mb-3 text-sm font-medium text-primary">Built for business</p>
         <h2 className="text-4xl font-bold tracking-tight">Accept payments wherever you do business.</h2>
-        <p className="mt-4 text-muted-foreground">From the shop counter to the clinic door, FinFlow helps businesses of every size get paid.</p>
+        <p className="mt-4 text-muted-foreground">From the shop counter to the clinic door, LIVRA helps businesses of every size get paid.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {[
@@ -287,7 +287,7 @@ const LandingPage = () => {
         <div className="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-primary-foreground/10 blur-2xl" aria-hidden />
         <div className="absolute -left-20 -bottom-28 w-72 h-72 rounded-full bg-primary-foreground/10 blur-2xl" aria-hidden />
         <div className="relative">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get started with FinFlow today</h2>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get started with LIVRA today</h2>
           <p className="opacity-85 max-w-xl text-lg">Create your account, verify your business and start receiving payments in minutes.</p>
         </div>
         <div className="relative flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 lg:items-end xl:justify-end">
@@ -306,8 +306,8 @@ const LandingPage = () => {
       <div className="milk-card rounded-[2rem] backdrop-blur-xl">
       <div className="w-full px-6 lg:px-12 xl:px-16 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
-          <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg mb-4">
-            <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">F</span>FinFlow
+          <Link to="/" aria-label="LIVRA home" className="mb-4 inline-flex items-center">
+            <BrandLogo className="h-9 w-auto" />
           </Link>
           <p className="text-sm text-muted-foreground max-w-sm">One wallet for Mobile Money, bank transfers, cards, bills and savings across Africa.</p>
         </div>
@@ -326,7 +326,7 @@ const LandingPage = () => {
       </div>
       <div className="border-t border-primary/10">
         <div className="w-full px-6 lg:px-12 xl:px-16 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} FinFlow. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} LIVRA. All rights reserved.</p>
           <p>Payments powered by licensed partners.</p>
         </div>
       </div>

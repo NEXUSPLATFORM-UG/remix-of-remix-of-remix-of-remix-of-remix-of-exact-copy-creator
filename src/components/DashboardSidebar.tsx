@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -29,17 +30,10 @@ const DashboardSidebar = () => {
     <aside className={`glass-sidebar min-h-screen flex flex-col shrink-0 transition-all duration-300 ${collapsed ? "w-[72px]" : "w-[240px]"}`}>
       <div className={`p-5 pb-3 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
         {!collapsed && (
-          <h1 className="text-lg font-semibold tracking-tight text-foreground flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">
-              F
-            </span>
-            FinFlow
-          </h1>
+          <BrandLogo className="h-8 w-auto max-w-[150px]" eager />
         )}
         {collapsed && (
-          <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">
-            F
-          </span>
+          <BrandLogo compact className="h-8 w-8" eager />
         )}
       </div>
 
