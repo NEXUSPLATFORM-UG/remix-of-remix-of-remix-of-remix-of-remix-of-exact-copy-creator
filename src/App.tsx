@@ -26,6 +26,7 @@ import CompanyPage from "./pages/CompanyPage";
 import AvailabilityPage from "./pages/AvailabilityPage";
 import PricingPage from "./pages/PricingPage";
 import SupportPage from "./pages/SupportPage";
+import DeveloperDocsPage from "./pages/DeveloperDocsPage";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/company/:slug" element={<CompanyPage />} />
           <Route path="/availability" element={<AvailabilityPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/developers" element={<DeveloperDocsPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
