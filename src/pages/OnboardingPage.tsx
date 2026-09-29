@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Loader2, UploadCloud, FileText, X, CheckCircle2 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { currencies, countryCurrency } from "@/hooks/use-main-currency";
 
 const businessTypes: Record<string, string[]> = {
   Uganda: ["Sole Proprietorship", "Partnership", "Private Limited Company (Ltd)", "Public Limited Company (PLC)", "Company Limited by Guarantee", "NGO", "SACCO / Cooperative"],
@@ -22,6 +23,7 @@ const businessTypes: Record<string, string[]> = {
 const schema = z.object({
   country: z.string().min(1, "Choose a country"),
   businessType: z.string().min(1, "Choose a business type"),
+  currency: z.string().min(1, "Choose a main currency"),
   businessName: z.string().trim().min(2, "Enter your business name").max(120),
   location: z.string().trim().min(2, "Enter your business location").max(200),
 });
@@ -85,9 +87,10 @@ const OnboardingPage = () => {
       }
       const { error } = await supabase.from("businesses").upsert({
         user_id: userId, country: form.country, business_type: form.businessType,
-        business_name: form.businessName.trim(), location: form.location.trim(), document_paths: paths,
+        business_name: form.businessName.trim(), location: form.location.trim(), document_paths: paths, main_currency: form.currency,
       }, { onConflict: "user_id" });
       if (error) throw error;
+      localStorage.setItem("livra_currency", form.currency);
       setDone(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not submit");
@@ -124,7 +127,7 @@ const OnboardingPage = () => {
               <div className="milk-card rounded-2xl p-5 space-y-2">
                 {step === 0 && (<>
                   <Label>Country</Label>
-                  <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v, businessType: "" })}>
+                  <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v, businessType: "", currency: form.currency || countryCurrency[v] || "" })}>
                     <SelectTrigger className="h-12 rounded-xl bg-background/70"><SelectValue placeholder="Select country" /></SelectTrigger>
                     <SelectContent>{Object.keys(businessTypes).map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
@@ -137,14 +140,26 @@ const OnboardingPage = () => {
                   </Select>
                 </>)}
                 {step === 2 && (<>
+                  <Label>Main currency</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {currencies.map((c) => (
+                      <button type="button" key={c.code} onClick={() => setForm({ ...form, currency: c.code })}
+                        className={`text-left rounded-xl px-3 py-3 border transition-colors ${form.currency === c.code ? "border-primary bg-primary/10" : "border-border bg-background/70 hover:bg-primary/5"}`}>
+                        <span className="block font-semibold text-sm">{c.code}</span>
+                        <span className="block text-xs text-muted-foreground">{c.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>)}
+                {step === 3 && (<>
                   <Label htmlFor="bn">Business name</Label>
                   <Input id="bn" autoFocus value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} className="h-12 rounded-xl bg-background/70" />
                 </>)}
-                {step === 3 && (<>
+                {step === 4 && (<>
                   <Label htmlFor="loc">Location</Label>
                   <Input id="loc" autoFocus placeholder="City, street / plot" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="h-12 rounded-xl bg-background/70" />
                 </>)}
-                {step === 4 && (<>
+                {step === 5 && (<>
                   <Label>Business documents</Label>
                   <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-2xl p-6 text-center cursor-pointer hover:bg-muted/30 transition-colors">
                     <UploadCloud className="text-primary" />
