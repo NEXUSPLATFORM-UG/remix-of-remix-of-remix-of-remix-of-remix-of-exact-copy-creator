@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { Send, User, ArrowRight, Smartphone, Building2, Users, TrendingUp, ArrowUpRight, Clock, X, Loader2, CheckCircle, AlertCircle, Search, ChevronRight, ArrowLeftRight } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
@@ -194,10 +195,10 @@ const SendPage = () => {
       <PageHeader title="Send Money" subtitle="Transfer funds to anyone, anywhere" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCardSmall icon={<Send size={18} />} label="Total Sent" value="UGX 12,450" gradient="stat-card-blue" />
-        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value="UGX 2,800" gradient="stat-card-cyan" />
+        <StatCardSmall icon={<Send size={18} />} label="Total Sent" value={cx("UGX 12,450")} gradient="stat-card-blue" />
+        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value={cx("UGX 2,800")} gradient="stat-card-cyan" />
         <StatCardSmall icon={<Users size={18} />} label="Recipients" value="24" gradient="stat-card-purple" />
-        <StatCardSmall icon={<Clock size={18} />} label="Pending" value="UGX 50" gradient="stat-card-orange" />
+        <StatCardSmall icon={<Clock size={18} />} label="Pending" value={cx("UGX 50")} gradient="stat-card-orange" />
       </div>
 
       <div className="glass rounded-2xl p-5 mb-5">
@@ -303,7 +304,7 @@ const SendPage = () => {
                 <div className="w-8 h-8 rounded-xl stat-card-blue flex items-center justify-center text-primary-foreground"><ArrowUpRight size={14} /></div>
                 <div><p className="text-sm font-medium text-foreground">{tx.name}</p><p className="text-xs text-muted-foreground">{tx.method} • {tx.date}</p></div>
               </div>
-              <div className="text-right"><span className="text-sm font-semibold text-foreground">{tx.amount}</span><p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p></div>
+              <div className="text-right"><span className="text-sm font-semibold text-foreground">{cx(tx.amount)}</span><p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p></div>
             </div>
           ))}
         </div>

@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { Shield, Heart, Car, Home, Briefcase, ChevronRight, TrendingUp, FileText, Clock, CheckCircle, AlertTriangle, Plus, DollarSign, X } from "lucide-react";
 import { useState } from "react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
@@ -92,7 +93,7 @@ const InsurancePage = () => {
     if (!newPolicyName || !newPremium) return;
     const newPolicy = {
       id: Date.now(), name: newPolicyName, status: "Active",
-      premium: `$${newPremium}/mo`, coverage: `$${newCoverage || "0"}`,
+      premium: `${symbol}${newPremium}/mo`, coverage: `${symbol}${newCoverage || "0"}`,
       nextPayment: "Apr 1, 2026",
     };
     setPolicies({ ...policies, [selectedType]: [...currentPolicies, newPolicy] });
@@ -121,7 +122,7 @@ const InsurancePage = () => {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <StatCardSmall icon={<Shield size={18} />} label="Active Policies" value={`${currentPolicies.filter(p => p.status === "Active").length}`} gradient="stat-card-green" />
-        <StatCardSmall icon={<DollarSign size={18} />} label="Monthly Premium" value={`$${totalPremium}`} gradient="stat-card-blue" />
+        <StatCardSmall icon={<DollarSign size={18} />} label="Monthly Premium" value={`${symbol}${totalPremium}`} gradient="stat-card-blue" />
         <StatCardSmall icon={<FileText size={18} />} label="Claims" value={`${typeClaims.length}`} gradient="stat-card-purple" />
         <StatCardSmall icon={<CheckCircle size={18} />} label="Approved" value={`${typeClaims.filter(c => c.status === "Approved").length}`} gradient="stat-card-cyan" />
       </div>
@@ -133,7 +134,7 @@ const InsurancePage = () => {
               <h3 className="text-sm font-semibold text-foreground">Premium Payments</h3>
               <p className="text-xs text-muted-foreground">Monthly payment history</p>
             </div>
-            <p className="text-2xl font-bold text-foreground">${totalPremium}/mo</p>
+            <p className="text-2xl font-bold text-foreground">{symbol}{totalPremium}/mo</p>
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={paymentHistory}>
@@ -160,7 +161,7 @@ const InsurancePage = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs font-medium text-foreground">{p.name}</p>
-                  <p className="text-[10px] text-muted-foreground">Coverage: {p.coverage}</p>
+                  <p className="text-[10px] text-muted-foreground">Coverage: {cx(p.coverage)}</p>
                 </div>
               </div>
             ))}
@@ -188,7 +189,7 @@ const InsurancePage = () => {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">{p.premium} • Coverage: {p.coverage}</p>
+                  <p className="text-xs text-muted-foreground">{cx(p.premium)} • Coverage: {cx(p.coverage)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium px-2 py-1 rounded-xl stat-card-green text-primary-foreground">{p.status}</span>
@@ -203,7 +204,7 @@ const InsurancePage = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Coverage Amount</span>
-                    <span className="font-medium text-foreground">{p.coverage}</span>
+                    <span className="font-medium text-foreground">{cx(p.coverage)}</span>
                   </div>
                   <div className="flex gap-2 pt-2">
                     <button className="flex-1 bg-primary text-primary-foreground py-2 rounded-xl text-xs font-medium">Pay Now</button>
@@ -234,7 +235,7 @@ const InsurancePage = () => {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-foreground">{c.amount}</span>
+                <span className="text-sm font-semibold text-foreground">{cx(c.amount)}</span>
                 <p className={`text-[10px] ${c.status === "Approved" ? "text-chart-green" : c.status === "Under Review" ? "text-chart-orange" : "text-primary"}`}>{c.status}</p>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { ArrowDownRight, Copy, QrCode, Share2, Link2, Smartphone, ArrowDownLeft, TrendingUp, CheckCircle, X, Loader2, AlertCircle } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
@@ -119,8 +120,8 @@ const ReceivePage = () => {
       <PageHeader title="Receive" subtitle="Accept payments via QR, links, or mobile money" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCardSmall icon={<ArrowDownLeft size={18} />} label="Total Received" value="UGX 8,450" gradient="stat-card-green" />
-        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value="UGX 2,125" gradient="stat-card-blue" />
+        <StatCardSmall icon={<ArrowDownLeft size={18} />} label="Total Received" value={cx("UGX 8,450")} gradient="stat-card-green" />
+        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value={cx("UGX 2,125")} gradient="stat-card-blue" />
         <StatCardSmall icon={<QrCode size={18} />} label="QR Payments" value="32" gradient="stat-card-purple" />
         <StatCardSmall icon={<Link2 size={18} />} label="Link Payments" value="18" gradient="stat-card-cyan" />
       </div>
@@ -202,7 +203,7 @@ const ReceivePage = () => {
               <div key={i} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
                 <div className="w-8 h-8 rounded-xl stat-card-green flex items-center justify-center text-primary-foreground"><ArrowDownLeft size={14} /></div>
                 <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{tx.name}</p><p className="text-xs text-muted-foreground">{tx.method} • {tx.date}</p></div>
-                <div className="text-right"><span className="text-sm font-semibold text-chart-green">{tx.amount}</span><p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p></div>
+                <div className="text-right"><span className="text-sm font-semibold text-chart-green">{cx(tx.amount)}</span><p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p></div>
               </div>
             ))}
           </div>

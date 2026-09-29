@@ -1,3 +1,4 @@
+import { useMainCurrency } from "@/hooks/use-main-currency";
 import { ArrowDownToLine, Smartphone, Building2, TrendingUp, ArrowUpRight, ArrowDownLeft, X, Loader2, CheckCircle, AlertCircle, Search, ChevronRight, ArrowLeftRight } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { ResponsiveContainer, XAxis, Tooltip, Bar, BarChart } from "recharts";
@@ -201,10 +202,10 @@ const DepositPage = () => {
       <PageHeader title="Deposit & Withdraw" subtitle="Add or withdraw funds from your wallet" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCardSmall icon={<ArrowDownToLine size={18} />} label="Total Deposited" value="UGX 45,792" gradient="stat-card-blue" />
-        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value="UGX 8,900" gradient="stat-card-green" />
-        <StatCardSmall icon={<ArrowUpRight size={18} />} label="Withdrawn" value="UGX 12,450" gradient="stat-card-orange" />
-        <StatCardSmall icon={<ArrowDownLeft size={18} />} label="Net Inflow" value="+UGX 33,342" gradient="stat-card-cyan" />
+        <StatCardSmall icon={<ArrowDownToLine size={18} />} label="Total Deposited" value={cx("UGX 45,792")} gradient="stat-card-blue" />
+        <StatCardSmall icon={<TrendingUp size={18} />} label="This Month" value={cx("UGX 8,900")} gradient="stat-card-green" />
+        <StatCardSmall icon={<ArrowUpRight size={18} />} label="Withdrawn" value={cx("UGX 12,450")} gradient="stat-card-orange" />
+        <StatCardSmall icon={<ArrowDownLeft size={18} />} label="Net Inflow" value={cx("+UGX 33,342")} gradient="stat-card-cyan" />
       </div>
 
       <div className="flex gap-3 mb-5">
@@ -238,7 +239,7 @@ const DepositPage = () => {
             <div key={i} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
               <div className="w-8 h-8 rounded-xl stat-card-green flex items-center justify-center text-primary-foreground"><ArrowDownLeft size={14} /></div>
               <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{tx.name}</p><p className="text-xs text-muted-foreground">{tx.method} • {tx.date}</p></div>
-              <div className="text-right"><span className="text-sm font-semibold text-chart-green">{tx.amount}</span><p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p></div>
+              <div className="text-right"><span className="text-sm font-semibold text-chart-green">{cx(tx.amount)}</span><p className={`text-[10px] ${tx.status === "Completed" ? "text-chart-green" : "text-chart-orange"}`}>{tx.status}</p></div>
             </div>
           ))}
         </div>
