@@ -21,6 +21,11 @@ import PaymentPage from "./pages/PaymentPage";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
 import OnboardingPage from "./pages/OnboardingPage";
+import ProductPage from "./pages/ProductPage";
+import CompanyPage from "./pages/CompanyPage";
+import AvailabilityPage from "./pages/AvailabilityPage";
+import PricingPage from "./pages/PricingPage";
+import SupportPage from "./pages/SupportPage";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +54,11 @@ const App = () => (
           </Route>
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/pay" element={<PaymentPage />} />
+          <Route path="/products/:slug" element={<ProductPage />} />
+          <Route path="/company/:slug" element={<CompanyPage />} />
+          <Route path="/availability" element={<AvailabilityPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
