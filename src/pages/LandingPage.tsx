@@ -156,9 +156,9 @@ const LandingPage = () => (
         <div className="relative z-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {features.map(({ icon: I, title, text, logo, brands }) => (
             <article key={title} className="milk-card group relative min-h-[210px] overflow-hidden rounded-2xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
-              <div className="mb-5 flex h-14 w-16 items-center justify-start">
+              <div className="mb-5 flex h-14 items-center justify-start">
                 {brands ? (
-                  <div className="flex h-12 w-full flex-row items-center justify-start gap-4 overflow-hidden">
+                  <div className="flex h-12 flex-row items-center justify-start gap-4">
                     {brands.map((brand) => (
                       <img key={brand.alt} src={brand.src} alt={brand.alt} className="h-8 w-auto object-contain" loading="lazy" width={72} height={32} />
                     ))}
