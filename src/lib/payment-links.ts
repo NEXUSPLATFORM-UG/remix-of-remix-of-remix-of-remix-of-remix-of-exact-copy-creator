@@ -27,13 +27,13 @@ export const encodePaymentLinkData = (data: PaymentLinkData) => {
   const bytes = new TextEncoder().encode(JSON.stringify(data));
   let binary = "";
   bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 };
 
 export const decodePaymentLinkData = (encoded: string | null): PaymentLinkData => {
   if (!encoded) return fallback;
   try {
-    const normalized = encoded.replaceAll("-", "+").replaceAll("_", "/");
+    const normalized = encoded.replace(/-/g, "+").replace(/_/g, "/");
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
