@@ -339,8 +339,9 @@ const LandingPage = () => {
     </section>
 
     {/* Footer */}
-    <footer className="border-t border-border/40 bg-background/40">
-      <div className="w-full px-6 lg:px-12 xl:px-20 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-5">
+    <footer className="w-full px-4 lg:px-8 pb-6">
+      <div className="milk-card rounded-[2rem] backdrop-blur-xl">
+      <div className="w-full px-6 lg:px-12 xl:px-16 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg mb-4">
             <span className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">F</span>FinFlow
@@ -360,11 +361,12 @@ const LandingPage = () => {
           </div>
         ))}
       </div>
-      <div className="border-t border-border/40">
-        <div className="w-full px-6 lg:px-12 xl:px-20 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-muted-foreground">
+      <div className="border-t border-primary/10">
+        <div className="w-full px-6 lg:px-12 xl:px-16 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} FinFlow. All rights reserved.</p>
           <p>Payments powered by licensed partners.</p>
         </div>
+      </div>
       </div>
     </footer>
 
