@@ -1,4 +1,5 @@
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
+import { useMainCurrency } from "@/hooks/use-main-currency";
 
 const data = [
   { month: "Jan", current: 200, last: 150 },
@@ -15,7 +16,9 @@ const data = [
   { month: "Dec", current: 900, last: 650 },
 ];
 
-const EarningsChart = () => (
+const EarningsChart = () => {
+  const { format } = useMainCurrency();
+  return (
   <div className="glass rounded-2xl p-5">
     <div className="flex items-center justify-between mb-1">
       <div>
@@ -37,7 +40,7 @@ const EarningsChart = () => (
         ))}
       </div>
     </div>
-    <p className="text-3xl font-bold text-foreground mb-1">$3,468.96</p>
+    <p className="text-3xl font-bold text-foreground mb-1">{format(3468.96)}</p>
     <div className="flex items-center gap-2 mb-3">
       <span className="text-sm text-foreground font-semibold">+12.5%</span>
       <span className="text-xs text-muted-foreground">Current Month Earning</span>
@@ -57,6 +60,7 @@ const EarningsChart = () => (
         <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "hsl(220 10% 45%)" }} />
         <YAxis hide />
         <Tooltip
+          formatter={(v: number) => format(v)}
           contentStyle={{
             background: "hsl(0 0% 100% / 0.7)",
             backdropFilter: "blur(20px)",
@@ -70,6 +74,7 @@ const EarningsChart = () => (
       </AreaChart>
     </ResponsiveContainer>
   </div>
-);
+  );
+};
 
 export default EarningsChart;

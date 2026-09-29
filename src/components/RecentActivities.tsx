@@ -1,14 +1,16 @@
 import { CheckCircle, Plus, FileText, RefreshCw, MessageCircle } from "lucide-react";
+import { useMainCurrency } from "@/hooks/use-main-currency";
 
-const activities = [
-  { icon: CheckCircle, color: "stat-card-blue", title: "Payment Sent", desc: "Transfer to Alex completed", time: "6 min ago" },
-  { icon: Plus, color: "stat-card-orange", title: "Deposit Received", desc: "$500 deposited to wallet", time: "3 hrs ago" },
-  { icon: FileText, color: "stat-card-cyan", title: "Bill Paid", desc: "Electricity bill - $120", time: "6 hrs ago" },
-  { icon: RefreshCw, color: "stat-card-green", title: "Converted", desc: "USD → EUR at 0.92", time: "1 day ago" },
-  { icon: MessageCircle, color: "stat-card-pink", title: "Insurance", desc: "Premium payment processed", time: "2 days ago" },
-];
-
-const RecentActivities = () => (
+const RecentActivities = () => {
+  const { format, code } = useMainCurrency();
+  const activities = [
+    { icon: CheckCircle, color: "stat-card-blue", title: "Payment Sent", desc: "Transfer to Alex completed", time: "6 min ago" },
+    { icon: Plus, color: "stat-card-orange", title: "Deposit Received", desc: `${format(500)} deposited to wallet`, time: "3 hrs ago" },
+    { icon: FileText, color: "stat-card-cyan", title: "Bill Paid", desc: `Electricity bill - ${format(120)}`, time: "6 hrs ago" },
+    { icon: RefreshCw, color: "stat-card-green", title: "Converted", desc: `${code} → ${code === "USD" ? "EUR" : "USD"}`, time: "1 day ago" },
+    { icon: MessageCircle, color: "stat-card-pink", title: "Insurance", desc: "Premium payment processed", time: "2 days ago" },
+  ];
+  return (
   <div className="glass rounded-2xl p-5">
     <h3 className="text-sm font-semibold text-foreground mb-4">Recent Activities</h3>
     <div className="space-y-4">
@@ -29,6 +31,7 @@ const RecentActivities = () => (
       })}
     </div>
   </div>
-);
+  );
+};
 
 export default RecentActivities;

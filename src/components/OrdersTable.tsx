@@ -1,14 +1,17 @@
 import { Search } from "lucide-react";
+import { useMainCurrency } from "@/hooks/use-main-currency";
 
 const orders = [
-  { id: "TXN-2386", customer: "Alice Johnson", type: "Transfer", price: "$249", status: "Completed", statusColor: "stat-card-green" },
-  { id: "TXN-2387", customer: "Maria Santos", type: "Deposit", price: "$2,412", status: "Pending", statusColor: "stat-card-orange" },
-  { id: "TXN-2388", customer: "David Chen", type: "Send", price: "$439", status: "Failed", statusColor: "bg-destructive" },
-  { id: "TXN-2389", customer: "Sarah Kim", type: "Convert", price: "$820", status: "Completed", statusColor: "stat-card-green" },
-  { id: "TXN-2390", customer: "James Park", type: "Transfer", price: "$1,423", status: "Pending", statusColor: "stat-card-orange" },
+  { id: "TXN-2386", customer: "Alice Johnson", type: "Transfer", price: 249, status: "Completed", statusColor: "stat-card-green" },
+  { id: "TXN-2387", customer: "Maria Santos", type: "Deposit", price: 2412, status: "Pending", statusColor: "stat-card-orange" },
+  { id: "TXN-2388", customer: "David Chen", type: "Send", price: 439, status: "Failed", statusColor: "bg-destructive" },
+  { id: "TXN-2389", customer: "Sarah Kim", type: "Convert", price: 820, status: "Completed", statusColor: "stat-card-green" },
+  { id: "TXN-2390", customer: "James Park", type: "Transfer", price: 1423, status: "Pending", statusColor: "stat-card-orange" },
 ];
 
-const OrdersTable = () => (
+const OrdersTable = () => {
+  const { format } = useMainCurrency();
+  return (
   <div className="glass rounded-2xl p-5">
     <div className="flex items-center justify-between mb-4">
       <div>
@@ -53,7 +56,7 @@ const OrdersTable = () => (
             <td className="py-2.5 text-foreground">{order.id}</td>
             <td className="py-2.5 text-foreground">{order.customer}</td>
             <td className="py-2.5 text-muted-foreground">{order.type}</td>
-            <td className="py-2.5 text-foreground font-medium">{order.price}</td>
+            <td className="py-2.5 text-foreground font-medium">{format(order.price)}</td>
             <td className="py-2.5">
               <span className={`px-2.5 py-1 rounded-xl text-primary-foreground text-[10px] font-medium ${order.statusColor}`}>
                 {order.status}
@@ -64,6 +67,7 @@ const OrdersTable = () => (
       </tbody>
     </table>
   </div>
-);
+  );
+};
 
 export default OrdersTable;
