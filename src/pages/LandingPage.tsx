@@ -14,6 +14,13 @@ import businessSupermarketPhoto from "@/assets/business-supermarket.jpg";
 import businessPetrolStationPhoto from "@/assets/business-petrol-station.jpg";
 import businessRestaurantPhoto from "@/assets/business-restaurant.jpg";
 import businessClinicPhoto from "@/assets/business-clinic.jpg";
+import flagUg from "@/assets/countries/ug.png";
+import flagKe from "@/assets/countries/ke.png";
+import flagTz from "@/assets/countries/tz.png";
+import flagRw from "@/assets/countries/rw.png";
+import flagNg from "@/assets/countries/ng.png";
+import flagGh from "@/assets/countries/gh.png";
+import flagZa from "@/assets/countries/za.png";
 import {
   ArrowRight, Smartphone, Shield, QrCode, Globe, CheckCircle2, Send, Wallet,
   Store, Fuel, UtensilsCrossed, Stethoscope,
@@ -231,6 +238,51 @@ const LandingPage = () => (
             <p className="text-base leading-relaxed text-muted-foreground">{text}</p>
           </div>
         ))}
+      </div>
+    </section>
+
+    {/* Available countries */}
+    <section id="countries" className="w-full px-6 lg:px-12 xl:px-20 py-20">
+      <div className="max-w-2xl mx-auto text-center mb-12">
+        <p className="mb-3 text-sm font-medium text-primary">Available countries</p>
+        <h2 className="text-4xl font-bold tracking-tight">Live in seven countries, growing fast.</h2>
+        <p className="mt-4 text-muted-foreground">Move money across East and West Africa with more countries joining soon.</p>
+      </div>
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4">
+        {[
+          { flag: flagUg, name: "Uganda", currency: "UGX", note: "MTN & Airtel Mobile Money" },
+          { flag: flagKe, name: "Kenya", currency: "KES", note: "M-Pesa & bank transfers" },
+          { flag: flagTz, name: "Tanzania", currency: "TZS", note: "Mobile Money & banks" },
+          { flag: flagRw, name: "Rwanda", currency: "RWF", note: "MoMo & bank transfers" },
+          { flag: flagNg, name: "Nigeria", currency: "NGN", note: "Bank transfers & cards" },
+          { flag: flagGh, name: "Ghana", currency: "GHS", note: "Mobile Money & banks" },
+          { flag: flagZa, name: "South Africa", currency: "ZAR", note: "Cards & EFT transfers" },
+        ].map(({ flag, name, currency, note }) => (
+          <div key={name} className="milk-card group relative overflow-hidden rounded-2xl p-5 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
+            <div className="mb-4 h-24 w-full overflow-hidden rounded-xl border border-border/30 shadow-sm">
+              <img
+                src={flag}
+                alt={`${name} flag`}
+                loading="lazy"
+                width={320}
+                height={180}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold">{name}</h3>
+              <span className="rounded-full bg-accent/70 px-2.5 py-0.5 text-xs font-medium text-primary">{currency}</span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">{note}</p>
+          </div>
+        ))}
+        <div className="milk-card group relative flex flex-col items-center justify-center rounded-2xl p-5 text-center">
+          <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+            <Globe size={22} className="text-primary" />
+          </span>
+          <h3 className="text-base font-semibold">More coming soon</h3>
+          <p className="mt-1 text-sm text-muted-foreground">New countries added every month.</p>
+        </div>
       </div>
     </section>
 
