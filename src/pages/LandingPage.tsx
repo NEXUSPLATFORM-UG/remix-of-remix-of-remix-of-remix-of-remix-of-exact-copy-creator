@@ -83,7 +83,7 @@ const LandingPage = () => {
   <div className="min-h-screen liquid-gradient-bg text-foreground">
     {/* Nav */}
     <header className="sticky top-0 z-40 glass border-b border-border/40">
-      <div className="w-full px-6 lg:px-12 xl:px-20 h-16 flex items-center justify-between">
+      <div className="w-full px-6 lg:px-12 xl:px-20 h-20 flex items-center justify-between">
         <Link to="/" aria-label="LIVRA home" className="flex items-center">
           <BrandLogo eager className="h-8 w-auto" />
         </Link>
