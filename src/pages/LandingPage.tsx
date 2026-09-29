@@ -88,10 +88,11 @@ const LandingPage = () => {
           <BrandLogo eager className="h-8 w-auto" />
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-          <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
-          <a href="#security" className="hover:text-foreground transition-colors">Security</a>
-          <Link to="/documentation" className="hover:text-foreground transition-colors">Developers</Link>
+          <a href="#features" className="hover:text-foreground transition-colors">Products</a>
+          <a href="#business" className="hover:text-foreground transition-colors">Company</a>
+          <a href="#countries" className="hover:text-foreground transition-colors">Availability</a>
+          <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
+          <a href="#support" className="hover:text-foreground transition-colors">Support</a>
         </nav>
         <div className="flex items-center gap-2">
           <button onClick={() => openAuth("login")} className="px-4 py-2 text-sm rounded-xl hover:bg-muted/50 transition-colors">Log in</button>
