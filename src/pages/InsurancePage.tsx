@@ -43,6 +43,7 @@ const paymentHistory = [
 ];
 
 const InsurancePage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [selectedType, setSelectedType] = useState<InsuranceType | null>(null);
   const [policies, setPolicies] = useState(defaultPolicies);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);

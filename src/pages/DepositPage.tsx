@@ -45,6 +45,7 @@ type ModalStep = "form" | "processing" | "polling" | "success" | "error";
 type WithdrawTab = "mobile" | "bank";
 
 const DepositPage = () => {
+  const { cx, symbol } = useMainCurrency();
   // Deposit modal
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositMsisdn, setDepositMsisdn] = useState("");

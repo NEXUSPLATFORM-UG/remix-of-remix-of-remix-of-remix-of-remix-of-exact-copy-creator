@@ -56,6 +56,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 type ModalStep = "form" | "processing" | "polling" | "success" | "error";
 
 const SendPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [activeMethod, setActiveMethod] = useState<"livra" | "mobile" | "bank">("livra");
 
   // Livra

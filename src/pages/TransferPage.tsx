@@ -77,6 +77,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 );
 
 const TransferPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [activeMethod, setActiveMethod] = useState("bank");
   const [amount, setAmount] = useState("");
   const [showTransferModal, setShowTransferModal] = useState(false);

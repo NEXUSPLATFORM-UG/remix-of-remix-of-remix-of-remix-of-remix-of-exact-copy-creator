@@ -31,6 +31,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 type ModalStep = "form" | "processing" | "polling" | "success" | "error";
 
 const ReceivePage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [activeTab, setActiveTab] = useState<"qr" | "link" | "mobile">("qr");
   const [requestAmount, setRequestAmount] = useState("");
   const [paymentDescription, setPaymentDescription] = useState("");

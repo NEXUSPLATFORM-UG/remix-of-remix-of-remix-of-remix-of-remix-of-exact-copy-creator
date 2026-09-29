@@ -61,6 +61,7 @@ const goalIcons = [
 ];
 
 const SavingPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [selectedAccount, setSelectedAccount] = useState<AccountType | null>(null);
   const [goals, setGoals] = useState<Record<AccountType, Goal[]>>({
     individual: defaultIndividualGoals,

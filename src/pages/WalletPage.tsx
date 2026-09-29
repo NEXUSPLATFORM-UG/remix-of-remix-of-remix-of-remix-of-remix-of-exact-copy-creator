@@ -48,6 +48,7 @@ const withdrawMethods = [
 ];
 
 const WalletPage = () => {
+  const { cx, symbol } = useMainCurrency();
   const [showBalance, setShowBalance] = useState(true);
   const [wallets, setWallets] = useState(defaultCurrencyWallets);
   const [cards, setCards] = useState(defaultCards);
