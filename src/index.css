@@ -274,3 +274,48 @@
 .photo-curve-frame {
   filter: drop-shadow(0 8px 18px hsl(214 55% 55% / 0.25));
 }
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 14mm;
+  }
+
+  body[data-print-target] * {
+    visibility: hidden;
+  }
+
+  body[data-print-target="payroll"] .payroll-print-area,
+  body[data-print-target="payroll"] .payroll-print-area *,
+  body[data-print-target="history"] .history-print-area,
+  body[data-print-target="history"] .history-print-area * {
+    visibility: visible;
+  }
+
+  body[data-print-target="payroll"] .payroll-print-area,
+  body[data-print-target="history"] .history-print-area {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    overflow: visible;
+    border: 0;
+    box-shadow: none;
+    background: hsl(var(--background));
+  }
+
+  body[data-print-target] .print-hidden {
+    display: none;
+  }
+
+  body[data-print-target] table {
+    min-width: 0;
+  }
+
+  body[data-print-target] thead {
+    display: table-header-group;
+  }
+
+  body[data-print-target] tr {
+    break-inside: avoid;
+  }
+}
