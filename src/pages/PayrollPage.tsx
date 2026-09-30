@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "sonner";
 import { validateBankTransfer, purchaseBankTransfer } from "@/lib/relworx";
-import { ChevronLeft, ChevronRight, Trash2, UserPlus, ShieldCheck, ShieldOff, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, UserPlus, ShieldCheck, ShieldOff, Loader2, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import BrandLogo from "@/components/BrandLogo";
 
 const API = "https://api.livrauganda.workers.dev/api";
 type Worker = { id: string; full_name: string; phone: string; payout_method: string; bank_product_code: string | null; bank_name: string | null; bank_account: string | null; daily_rate: number; active: boolean };
@@ -54,7 +56,7 @@ const PayrollPage = () => {
       if (!data.user) { setLoading(false); return; }
       setUid(data.user.id);
       const { data: b } = await supabase.from("businesses").select("id,user_id").order("created_at").limit(10);
-      const own = b?.find((x) => x.user_id === data.user!.id) ?? b?.[0] ?? null;
+      const own = b?.find((x) => x.user_id === data.user?.id) ?? b?.[0] ?? null;
       setBiz(own);
       if (own && data.user.email) {
         await supabase.from("business_members").update({ user_id: data.user.id, status: "active" }).eq("business_id", own.id).eq("email", data.user.email.toLowerCase()).eq("status", "invited");
@@ -108,7 +110,8 @@ const PayrollPage = () => {
     let status = "failed"; let reference: string | null = null;
     try {
       if (w.payout_method === "bank") {
-        const v = await validateBankTransfer({ msisdn: w.bank_account!, amount, product_code: w.bank_product_code!, contact_phone: w.phone });
+        if (!w.bank_account || !w.bank_product_code) throw new Error("This worker's bank details are incomplete.");
+        const v = await validateBankTransfer({ msisdn: w.bank_account, amount, product_code: w.bank_product_code, contact_phone: w.phone });
         const p = await purchaseBankTransfer(v.validation_reference);
         reference = p.internal_reference ?? v.validation_reference; status = "success";
       } else {
@@ -142,6 +145,29 @@ const PayrollPage = () => {
   }, [month]);
   const monthLabel = month.toLocaleString(undefined, { month: "long", year: "numeric" });
   const sel = workers.find((w) => w.id === selWorker);
+  const payrollTotal = workers.reduce((sum, worker) => sum + daysFor(worker.id) * Number(worker.daily_rate), 0);
+
+  const printSection = (target: "payroll" | "history") => {
+    document.body.dataset.printTarget = target;
+    const cleanup = () => {
+      delete document.body.dataset.printTarget;
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    window.setTimeout(cleanup, 1000);
+  };
+
+  const PrintHeading = ({ title, subtitle }: { title: string; subtitle: string }) => (
+    <div className="hidden print:block border-b-2 border-foreground pb-4 mb-5">
+      <div className="flex items-end justify-between gap-6">
+        <BrandLogo className="h-8 w-auto" eager />
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Official payroll record</p>
+      </div>
+      <h1 className="mt-6 font-serif text-2xl font-semibold">{title}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+    </div>
+  );
 
   if (loading) return <div className="p-10 text-muted-foreground">Loading…</div>;
   if (!uid || !biz) return <div><PageHeader title="Payroll" /><div className="glass-card p-8 rounded-2xl text-muted-foreground">Sign in and complete business onboarding to use Payroll.</div></div>;
@@ -214,27 +240,62 @@ const PayrollPage = () => {
       )}
 
       {tab === "pay" && (
-        <div className="space-y-5">
-          <div className="glass-card rounded-2xl p-5">
-            <div className="flex justify-between items-center mb-4"><h3 className="font-semibold">Payroll for {monthLabel}</h3><MonthNav /></div>
-            <table className="w-full text-sm">
-              <thead className="text-muted-foreground text-left"><tr><th className="py-2">Worker</th><th>Method</th><th>Days</th><th>Rate</th><th>Total</th><th /></tr></thead>
-              <tbody>{workers.map((w) => { const d = daysFor(w.id); return (
-                <tr key={w.id} className="border-t border-border/40">
-                  <td className="py-3">{w.full_name}</td><td>{w.payout_method === "bank" ? "Bank" : "Mobile Money"}</td><td>{d}</td><td>{ugx(w.daily_rate)}</td><td className="font-semibold">{ugx(d * Number(w.daily_rate))}</td>
-                  <td className="text-right"><button className={btn} disabled={!!paying || d === 0} onClick={() => payWorker(w)}>{paying === w.id ? <Loader2 size={14} className="animate-spin" /> : "Pay"}</button></td>
-                </tr>); })}</tbody>
-            </table>
-            <p className="mt-3 text-right font-semibold">Total: {ugx(workers.reduce((s, w) => s + daysFor(w.id) * Number(w.daily_rate), 0))}</p>
-          </div>
-          <div className="glass-card rounded-2xl p-5">
-            <h3 className="font-semibold mb-3">Payment history</h3>
-            {pays.length === 0 ? <p className="text-sm text-muted-foreground">No payouts yet.</p> : pays.map((p) => (
-              <div key={p.id} className="flex justify-between text-sm py-2 border-t border-border/40">
-                <span>{workers.find((w) => w.id === p.worker_id)?.full_name ?? "Worker"} · {p.days} day(s) · {p.period_start.slice(0, 7)}</span>
-                <span>{ugx(p.amount)} · <span className={p.status === "failed" ? "text-destructive" : "text-primary"}>{p.status}</span></span>
-              </div>))}
-          </div>
+        <div className="space-y-4">
+          <section className="payroll-print-area overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+            <PrintHeading title="Payroll Register" subtitle={`Pay period: ${monthLabel}`} />
+            <div className="print-hidden flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+              <div>
+                <h3 className="font-serif text-lg font-semibold">Payroll register</h3>
+                <p className="text-xs text-muted-foreground">{workers.length} workers · {monthLabel}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <MonthNav />
+                <Button variant="outline" size="sm" onClick={() => printSection("payroll")} title="Print payroll or save as PDF">
+                  <Printer /> Print PDF
+                </Button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] border-collapse text-xs">
+                <thead className="bg-muted/60 text-left text-[10px] uppercase text-muted-foreground">
+                  <tr><th className="px-4 py-2 font-semibold">Worker</th><th className="px-3 py-2 font-semibold">Payout method</th><th className="px-3 py-2 text-right font-semibold">Days</th><th className="px-3 py-2 text-right font-semibold">Daily rate</th><th className="px-3 py-2 text-right font-semibold">Gross pay</th><th className="print-hidden w-20 px-4 py-2" /></tr>
+                </thead>
+                <tbody>{workers.map((w) => { const d = daysFor(w.id); return (
+                  <tr key={w.id} className="border-t border-border/70 hover:bg-muted/30">
+                    <td className="px-4 py-2.5 font-medium">{w.full_name}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{w.payout_method === "bank" ? `Bank · ${w.bank_name ?? "Account"}` : "Mobile Money"}</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{d}</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">{ugx(w.daily_rate)}</td>
+                    <td className="px-3 py-2.5 text-right font-semibold tabular-nums">{ugx(d * Number(w.daily_rate))}</td>
+                    <td className="print-hidden px-4 py-1.5 text-right"><Button size="sm" className="h-7 px-3 text-xs" disabled={!!paying || d === 0} onClick={() => payWorker(w)}>{paying === w.id ? <Loader2 className="animate-spin" /> : "Pay"}</Button></td>
+                  </tr>); })}</tbody>
+                <tfoot className="border-t-2 border-foreground/70 bg-muted/40">
+                  <tr><td colSpan={4} className="px-4 py-3 text-right font-serif text-sm font-semibold">Total payroll</td><td className="px-3 py-3 text-right font-serif text-base font-semibold tabular-nums">{ugx(payrollTotal)}</td><td className="print-hidden" /></tr>
+                </tfoot>
+              </table>
+            </div>
+            {workers.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted-foreground">No workers have been added.</p>}
+            <div className="hidden print:grid grid-cols-2 gap-16 pt-16 text-xs">
+              <div className="border-t border-foreground pt-2">Prepared by</div><div className="border-t border-foreground pt-2">Approved by</div>
+            </div>
+          </section>
+
+          <section className="history-print-area overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+            <PrintHeading title="Payroll Payment History" subtitle="Payout record for the latest transactions" />
+            <div className="print-hidden flex items-center justify-between border-b border-border px-4 py-3">
+              <div><h3 className="font-serif text-lg font-semibold">Payment history</h3><p className="text-xs text-muted-foreground">Latest {pays.length} payroll payouts</p></div>
+              <Button variant="outline" size="sm" onClick={() => printSection("history")} title="Print payment history or save as PDF"><Printer /> Print PDF</Button>
+            </div>
+            {pays.length === 0 ? <p className="px-4 py-8 text-center text-sm text-muted-foreground">No payouts yet.</p> : (
+              <div className="overflow-x-auto"><table className="w-full min-w-[680px] border-collapse text-xs">
+                <thead className="bg-muted/60 text-left text-[10px] uppercase text-muted-foreground"><tr><th className="px-4 py-2">Date</th><th className="px-3 py-2">Worker</th><th className="px-3 py-2">Period</th><th className="px-3 py-2 text-right">Days</th><th className="px-3 py-2">Method</th><th className="px-3 py-2 text-right">Amount</th><th className="px-4 py-2 text-right">Status</th></tr></thead>
+                <tbody>{pays.map((p) => (
+                  <tr key={p.id} className="border-t border-border/70">
+                    <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</td><td className="px-3 py-2.5 font-medium">{workers.find((w) => w.id === p.worker_id)?.full_name ?? "Worker"}</td><td className="px-3 py-2.5 text-muted-foreground">{p.period_start.slice(0, 7)}</td><td className="px-3 py-2.5 text-right tabular-nums">{p.days}</td><td className="px-3 py-2.5 capitalize text-muted-foreground">{p.method.replace("_", " ")}</td><td className="px-3 py-2.5 text-right font-semibold tabular-nums">{ugx(p.amount)}</td><td className={`px-4 py-2.5 text-right font-medium capitalize ${p.status === "failed" ? "text-destructive" : "text-primary"}`}>{p.status}</td>
+                  </tr>))}</tbody>
+              </table></div>
+            )}
+          </section>
         </div>
       )}
 

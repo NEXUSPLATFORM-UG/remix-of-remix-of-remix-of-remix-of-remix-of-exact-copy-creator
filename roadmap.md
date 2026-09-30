@@ -10,3 +10,5 @@
 - [x] Add Mobile Money, Bank Transfer, and unavailable Card options to Receive
 - [x] Carry the creator's main currency into payment links and QR codes
 - [x] Add payment-method selection to the public payment page
+- [x] Redesign Run Payroll as a compact classic register
+- [x] Add printable PDF layouts for payroll and payment history
