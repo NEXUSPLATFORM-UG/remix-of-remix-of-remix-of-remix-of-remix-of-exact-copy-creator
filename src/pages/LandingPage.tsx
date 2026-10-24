@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AuthModal, { AuthMode, goAfterAuth } from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import MoneyFlowBackground from "@/components/MoneyFlowBackground";
 import BrandLogo from "@/components/BrandLogo";
 import SiteHeader from "@/components/SiteHeader";
@@ -71,13 +72,27 @@ const LandingPage = () => {
   const openAuth = (m: AuthMode) => { setAuthMode(m); setAuthOpen(true); };
 
   useEffect(() => {
+    let cancelled = false;
+    let routing = false;
+    const continueToAccount = () => {
+      if (cancelled || routing) return;
+      routing = true;
+      void goAfterAuth((path) => {
+        if (!cancelled) { sessionStorage.removeItem("postAuth"); navigate(path); }
+      }).catch((error) => {
+        routing = false;
+        if (!cancelled) toast.error(error instanceof Error ? error.message : "Could not open your account.");
+      });
+    };
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" && sessionStorage.getItem("postAuth")) {
-        sessionStorage.removeItem("postAuth");
-        setTimeout(() => goAfterAuth(navigate), 0);
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        if (sessionStorage.getItem("postAuth") || window.location.hash.includes("access_token=")) {
+          setTimeout(continueToAccount, 0);
+        }
       }
     });
-    return () => sub.subscription.unsubscribe();
+    if (sessionStorage.getItem("postAuth")) setTimeout(continueToAccount, 0);
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, [navigate]);
 
   return (

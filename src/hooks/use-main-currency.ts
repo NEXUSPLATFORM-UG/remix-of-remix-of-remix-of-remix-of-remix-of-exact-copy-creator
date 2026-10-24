@@ -33,7 +33,15 @@ const loadFromDb = async () => {
   const c = (b as { main_currency?: string } | null)?.main_currency;
   if (c && c !== current) setLocal(c);
 };
-supabase.auth.onAuthStateChange((e) => { if (e === "SIGNED_IN") { loaded = false; loadFromDb(); } });
+supabase.auth.onAuthStateChange((e) => {
+  if (e === "SIGNED_IN") {
+    loaded = false;
+    // Auth listeners run under the auth lock; defer any further auth calls.
+    setTimeout(() => { void loadFromDb().catch(() => { loaded = false; }); }, 0);
+  } else if (e === "SIGNED_OUT") {
+    loaded = false;
+  }
+});
 
 /** Save the main currency on this device and to the user's business record. */
 export const saveMainCurrency = async (c: string) => {
