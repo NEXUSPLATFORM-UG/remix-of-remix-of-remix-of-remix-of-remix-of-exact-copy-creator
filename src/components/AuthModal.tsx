@@ -4,9 +4,9 @@ import { z } from "zod";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { toast } from "sonner";
 import { Loader2, MailCheck } from "lucide-react";
 
 export type AuthMode = "login" | "register";
@@ -20,9 +20,11 @@ const registerSchema = z.object({
 const loginSchema = registerSchema.pick({ email: true, password: true });
 
 export const goAfterAuth = async (navigate: (p: string) => void) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-  const { data } = await supabase.from("businesses").select("id").eq("user_id", user.id).maybeSingle();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!user) throw new Error("Please log in again to continue.");
+  const { data, error } = await supabase.from("businesses").select("id").eq("user_id", user.id).maybeSingle();
+  if (error) throw error;
   navigate(data ? "/dashboard" : "/onboarding");
 };
 
@@ -43,6 +45,7 @@ const AuthModal = ({ open, mode, onModeChange, onOpenChange }: Props) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
 
   const submit = async (e: React.FormEvent) => {
@@ -53,35 +56,41 @@ const AuthModal = ({ open, mode, onModeChange, onOpenChange }: Props) => {
       parsed.error.issues.forEach((i) => (errs[i.path[0] as string] = i.message));
       setErrors(errs); return;
     }
-    setErrors({}); setLoading(true);
+    setErrors({}); setAuthError(null); setLoading(true);
     try {
       if (mode === "register") {
         const { data, error } = await supabase.auth.signUp({
           email: form.email.trim(), password: form.password,
-          options: { emailRedirectTo: `${window.location.origin}/onboarding`, data: { first_name: form.firstName.trim(), last_name: form.lastName.trim() } },
+          options: { emailRedirectTo: window.location.origin, data: { first_name: form.firstName.trim(), last_name: form.lastName.trim() } },
         });
         if (error) throw error;
-        if (data.session) { onOpenChange(false); navigate("/onboarding"); }
+        if (data.session) { await goAfterAuth(navigate); onOpenChange(false); }
         else setSentTo(form.email.trim());
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: form.email.trim(), password: form.password });
         if (error) throw error;
-        onOpenChange(false);
         await goAfterAuth(navigate);
+        onOpenChange(false);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      setAuthError(err instanceof Error ? err.message : "Something went wrong");
     } finally { setLoading(false); }
   };
 
   const google = async () => {
-    sessionStorage.setItem("postAuth", "1");
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) { sessionStorage.removeItem("postAuth"); toast.error("Google sign-in failed"); return; }
-    if (result.redirected) return;
-    sessionStorage.removeItem("postAuth");
-    onOpenChange(false);
-    await goAfterAuth(navigate);
+    setLoading(true); setAuthError(null);
+    try {
+      sessionStorage.setItem("postAuth", "1");
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      await goAfterAuth(navigate);
+      sessionStorage.removeItem("postAuth");
+      onOpenChange(false);
+    } catch (err) {
+      sessionStorage.removeItem("postAuth");
+      setAuthError(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
+    } finally { setLoading(false); }
   };
 
   const field = (k: keyof typeof form, label: string, type = "text", auto?: string) => (
@@ -105,19 +114,19 @@ const AuthModal = ({ open, mode, onModeChange, onOpenChange }: Props) => {
           <>
             <div className="flex p-1 rounded-xl bg-muted/50 mb-2">
               {(["login", "register"] as const).map((m) => (
-                <button key={m} type="button" onClick={() => { onModeChange(m); setErrors({}); }}
+                <Button variant="ghost" disabled={loading} key={m} type="button" onClick={() => { onModeChange(m); setErrors({}); setAuthError(null); }}
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${mode === m ? "bg-background shadow-sm" : "text-muted-foreground"}`}>
                   {m === "login" ? "Log in" : "Register"}
-                </button>
+                </Button>
               ))}
             </div>
             <div>
               <DialogTitle className="text-2xl font-bold">{mode === "login" ? "Welcome back" : "Create your account"}</DialogTitle>
               <DialogDescription>{mode === "login" ? "Log in to your LIVRA wallet." : "Start moving money in minutes."}</DialogDescription>
             </div>
-            <button type="button" onClick={google} className="w-full h-11 rounded-xl border border-border bg-background/70 flex items-center justify-center gap-2 text-sm font-medium hover:bg-muted/50 transition-colors">
+            <Button variant="outline" disabled={loading} type="button" onClick={google} className="w-full h-11 rounded-xl border border-border bg-background/70 flex items-center justify-center gap-2 text-sm font-medium hover:bg-muted/50 transition-colors">
               <GoogleIcon /> Continue with Google
-            </button>
+            </Button>
             <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" /></div>
             <form onSubmit={submit} className="space-y-3">
               {mode === "register" && (
@@ -128,10 +137,11 @@ const AuthModal = ({ open, mode, onModeChange, onOpenChange }: Props) => {
               )}
               {field("email", "Email", "email", "email")}
               {field("password", "Password", "password", mode === "login" ? "current-password" : "new-password")}
-              <button disabled={loading} className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2">
+              {authError && <p role="alert" className="text-sm text-destructive">{authError}</p>}
+              <Button type="submit" disabled={loading} className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2">
                 {loading && <Loader2 size={16} className="animate-spin" />}
                 {mode === "login" ? "Log in" : "Create account"}
-              </button>
+              </Button>
             </form>
           </>
         )}
