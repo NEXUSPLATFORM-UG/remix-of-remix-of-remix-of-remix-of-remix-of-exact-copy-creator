@@ -12,4 +12,4 @@
 - [x] Add payment-method selection to the public payment page
 - [x] Redesign Run Payroll as a compact classic register
 - [x] Add printable PDF layouts for payroll and payment history
-- [ ] Verify real login, restored-session routing, and signed-out dashboard protection
+- [x] Fix login session handling; verify invalid-password rejection, real account session restoration, refresh persistence, and signed-out dashboard protection
